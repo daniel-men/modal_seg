@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:file_picker_cross/file_picker_cross.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:http/http.dart' as http;
+import 'package:crypto/crypto.dart';
+import 'package:modal_seg/Base64Utils.dart';
+
 
 import 'package:modal_seg/widgets/DropDownAppBar.dart';
 import 'package:modal_seg/widgets/FileCardListView.dart';
@@ -55,6 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Map<String, Shape> fileToShapeMap = {};
   String _cursorPosition;
   String _currentlyOpenedImage;
+  String ipAdress;
+  List<Uint8List> imagesAsBytes = [];
 
   @override
   Widget build(BuildContext context) {
@@ -157,8 +163,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> loadImage(String filename) async {
+    Uint8List imageBytes;
+    if (imagesAsBytes.isNotEmpty) {
+      imageBytes = imagesAsBytes[selectedFiles.indexOf(filename)];
+    } else {
+      imageBytes = await File(filename).readAsBytes();
+    }
+
     ui.Codec codec =
-        await ui.instantiateImageCodec(await File(filename).readAsBytes());
+        await ui.instantiateImageCodec(imageBytes);
     ui.Image _image = (await codec.getNextFrame()).image;
 
     setState(() {
@@ -216,8 +229,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: RaisedButton(
                     color: Colors.green[900],
                     onPressed: () {
-                      List<String> filenames = List<String>.from(snapshot.data);
-                      loadNewDataAsync(filenames);
+                      List<String> filenames = List<String>.from(snapshot.data.keys);
+                      loadNewDataAsync(filenames, snapshot.data.values.map((v) => Uint8List.fromList(Base64Util.base64Decoder(v))).toList().cast<Uint8List>());
                     },
                     child: Text(
                       "Import new data",
@@ -235,20 +248,20 @@ class _MyHomePageState extends State<MyHomePage> {
         }); // builder should also handle the case when data is not fetched yet
   }
 
-  Future<List<dynamic>> checkForNewData() async {
+  Future<Map<dynamic, dynamic>> checkForNewData() async {
     //String url =  'http://127.0.0.1:5000/server';
-    String url = 'http://192.168.90.130:5000/server';
+    String url = 'http://$ipAdress:5000/server';
     try {
       http.Response response = await http.get(url);
       var decodedResponse = jsonDecode(response.body);
       return decodedResponse;
     } catch (SocketException) {
       print(e.toString());
-      return [];
+      return Map();
     }
   }
 
-  Future<void> loadNewDataAsync(List<String> filenames) async {
+  Future<void> loadNewDataAsync(List<String> filenames, [List<Uint8List> bytes]) async {
     List<String> toBeAnnotated = [];
     String filePath =
         "C:\\Users\\d.mensing\\Documents\\Projekte\\Cure-OP\\Daten\\cropped\\unlabelled_frames\\";
@@ -256,8 +269,13 @@ class _MyHomePageState extends State<MyHomePage> {
       toBeAnnotated.add(filePath + fileName);
     }
 
+  
+
     setState(() {
       selectedFiles = toBeAnnotated;
+      if (bytes != null) {
+        imagesAsBytes = bytes;
+      }
     });
   }
 
@@ -305,15 +323,48 @@ class _MyHomePageState extends State<MyHomePage> {
       ElevatedButton(
         child: Text("Send to server"),
         onPressed: () {
-          String url = 'http://192.168.90.130:5000/server';
+          String url = 'http://$ipAdress:5000/server';
           http.post(url,
               headers: {'content-type': 'application/json'},
               body: getShapeJson());
         },
       ),
+      ElevatedButton(
+        child: Text("Set IP"),
+        onPressed: () {
+          showIPDialog(context);
+        },
+      ),
       buildStreamBuilder(),
       cursorContainer
     ]));
+  }
+
+  Future<void> showIPDialog(BuildContext context) async {
+    return showDialog(context: context,
+      builder: (context) {
+        String valueText;
+        return AlertDialog(
+          title: Text('IP Address of Server'),
+          content: TextField(
+            onChanged: (value) {
+              valueText = value;
+            },
+            decoration: InputDecoration(hintText: "Enter valid IP adress"),
+          ),
+          actions: [
+            FlatButton(
+              color: Colors.green,
+              onPressed: () {
+              setState(() {
+                ipAdress = valueText;
+                Navigator.pop(context);
+              });
+            }, child: Text("OK"))
+          ],
+        );
+      }
+    );
   }
 
   Future<void> writeShapesToFile(String filename) async {
