@@ -8,7 +8,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 import 'package:http/http.dart' as http;
-import 'package:crypto/crypto.dart';
 import 'package:modal_seg/Base64Utils.dart';
 
 
@@ -252,6 +251,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //String url =  'http://127.0.0.1:5000/server';
     String url = 'http://$ipAdress:5000/server';
     try {
+
       http.Response response = await http.get(url);
       var decodedResponse = jsonDecode(response.body);
       return decodedResponse;
@@ -324,7 +324,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Text("Send to server"),
         onPressed: () {
           String url = 'http://$ipAdress:5000/server';
-          http.post(url,
+           http.post(url,
               headers: {'content-type': 'application/json'},
               body: getShapeJson());
         },
