@@ -7,12 +7,11 @@ import 'package:file_picker_cross/file_picker_cross.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
-import 'package:http/http.dart' as http;
-import 'package:modal_seg/Base64Utils.dart';
-
+import 'package:modal_seg/IO.dart';
+import 'package:modal_seg/widgets/DataImporter.dart';
 
 import 'package:modal_seg/widgets/DropDownAppBar.dart';
-import 'package:modal_seg/widgets/FileCardListView.dart';
+import 'package:modal_seg/widgets/SideBar.dart';
 import 'package:modal_seg/widgets/ToolMenu.dart';
 import 'package:modal_seg/shapes/Line.dart';
 import 'package:modal_seg/ShapePainter.dart';
@@ -69,13 +68,16 @@ class _MyHomePageState extends State<MyHomePage> {
         Expanded(
             flex: 1,
             child: Container(
-                padding: EdgeInsets.all(4.0), child: populateSideBar())),
+                padding: EdgeInsets.all(4.0),
+                child: SideBar(
+                    elements: selectedFiles, onTap: changeSelectedImage))),
         Expanded(
             flex: 3,
             child: MouseRegion(
                 onHover: _updateCursorPosition,
                 child: InteractiveViewer(
                     panEnabled: true,
+                    scaleEnabled: true,
                     child: Stack(children: [
                       GestureDetector(
                           onPanUpdate: (DragUpdateDetails details) {
@@ -169,30 +171,12 @@ class _MyHomePageState extends State<MyHomePage> {
       imageBytes = await File(filename).readAsBytes();
     }
 
-    ui.Codec codec =
-        await ui.instantiateImageCodec(imageBytes);
+    ui.Codec codec = await ui.instantiateImageCodec(imageBytes);
     ui.Image _image = (await codec.getNextFrame()).image;
 
     setState(() {
       selectedImage = _image;
     });
-  }
-
-  Widget populateSideBar() {
-    if (selectedFiles.isEmpty) {
-      return Container(
-          color: Colors.amber[100],
-          height: double.infinity,
-          child: Center(child: Text("No opened files")));
-    } else {
-      return Container(
-          color: Colors.amber[100],
-          child: ListView(
-            children: selectedFiles
-                .map((f) => FileCardListView(onTap: changeSelectedImage, file: f))
-                .toList(),
-          ));
-    }
   }
 
   Future<void> changeSelectedImage(String filename) async {
@@ -216,68 +200,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  Widget buildStreamBuilder() {
-    return StreamBuilder(
-        stream: Stream.periodic(Duration(seconds: 10)).asyncMap(
-            (i) => checkForNewData()), // i is null here (check periodic docs)
-        builder: (context, snapshot) {
-          if (snapshot.hasData && !snapshot.data.isEmpty) {
-            return Container(
-                color: Colors.green[400],
-                margin: EdgeInsets.all(8.0),
-                child: RaisedButton(
-                    color: Colors.green[900],
-                    onPressed: () {
-                      List<String> filenames = List<String>.from(snapshot.data.keys);
-                      loadNewDataAsync(filenames, snapshot.data.values.map((v) => Uint8List.fromList(Base64Util.base64Decoder(v))).toList().cast<Uint8List>());
-                    },
-                    child: Text(
-                      "Import new data",
-                      style: TextStyle(color: Colors.white),
-                    )));
-          } else {
-            return Container(
-                color: Colors.red,
-                margin: EdgeInsets.all(8.0),
-                child: Text(
-                  "No new data found",
-                  style: TextStyle(color: Colors.white),
-                ));
-          }
-        }); // builder should also handle the case when data is not fetched yet
-  }
-
-  Future<Map<dynamic, dynamic>> checkForNewData() async {
-    //String url =  'http://127.0.0.1:5000/server';
-    String url = 'http://$ipAdress:5000/server';
-    try {
-
-      http.Response response = await http.get(url);
-      var decodedResponse = jsonDecode(response.body);
-      return decodedResponse;
-    } catch (SocketException) {
-      print(e.toString());
-      return Map();
-    }
-  }
-
-  Future<void> loadNewDataAsync(List<String> filenames, [List<Uint8List> bytes]) async {
-    List<String> toBeAnnotated = [];
-    String filePath =
-        "C:\\Users\\d.mensing\\Documents\\Projekte\\Cure-OP\\Daten\\cropped\\unlabelled_frames\\";
-    for (var fileName in filenames) {
-      toBeAnnotated.add(filePath + fileName);
-    }
-
   
-
-    setState(() {
-      selectedFiles = toBeAnnotated;
-      if (bytes != null) {
-        imagesAsBytes = bytes;
-      }
-    });
-  }
 
   PreferredSizeWidget buildAppBar() {
     Widget cursorContainer;
@@ -316,17 +239,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ElevatedButton(
         child: Text("Save to file"),
         onPressed: () {
-          String url = "C:\\Users\\d.mensing\\Documents\\Projekte\\Cure-OP\\Daten\\segmentations.json";
-          writeShapesToFile(url);
+          String url =
+              "C:\\Users\\d.mensing\\Documents\\Projekte\\Cure-OP\\Daten\\segmentations.json";
+          writeShapesToFile(url, getShapeJson());
         },
       ),
       ElevatedButton(
         child: Text("Send to server"),
         onPressed: () {
           String url = 'http://$ipAdress:5000/server';
-           http.post(url,
-              headers: {'content-type': 'application/json'},
-              body: getShapeJson());
+          DataImporter.sendToServer(url, getShapeJson());
         },
       ),
       ElevatedButton(
@@ -335,48 +257,54 @@ class _MyHomePageState extends State<MyHomePage> {
           showIPDialog(context);
         },
       ),
-      buildStreamBuilder(),
+      DataImporter(
+        ipAdress: ipAdress,
+        onNewDataCallback: (List<String> toBeAnnotated, List<Uint8List> bytes) {
+          setState(() {
+            selectedFiles = toBeAnnotated;
+            if (bytes != null) {
+              imagesAsBytes = bytes;
+            }
+          });
+        },
+      ),
       cursorContainer
     ]));
   }
 
   Future<void> showIPDialog(BuildContext context) async {
-    return showDialog(context: context,
-      builder: (context) {
-        String valueText;
-        return AlertDialog(
-          title: Text('IP Address of Server'),
-          content: TextField(
-            onChanged: (value) {
-              valueText = value;
-            },
-            decoration: InputDecoration(hintText: "Enter valid IP adress"),
-          ),
-          actions: [
-            FlatButton(
-              color: Colors.green,
-              onPressed: () {
-              setState(() {
-                ipAdress = valueText;
-                Navigator.pop(context);
-              });
-            }, child: Text("OK"))
-          ],
-        );
-      }
-    );
+    return showDialog(
+        context: context,
+        builder: (context) {
+          String valueText;
+          return AlertDialog(
+            title: Text('IP Address of Server'),
+            content: TextField(
+              onChanged: (value) {
+                valueText = value;
+              },
+              decoration: InputDecoration(hintText: "Enter valid IP adress"),
+            ),
+            actions: [
+              FlatButton(
+                  color: Colors.green,
+                  onPressed: () {
+                    setState(() {
+                      ipAdress = valueText;
+                      Navigator.pop(context);
+                    });
+                  },
+                  child: Text("OK"))
+            ],
+          );
+        });
   }
 
-  Future<void> writeShapesToFile(String filename) async {
-  File file = File(filename);
-  file.writeAsString(jsonEncode(getShapeJson()), mode: FileMode.write);
-}
 
-String getShapeJson() {
-    Map<String, String> jsonMap = fileToShapeMap.map((key, value) => MapEntry(key, jsonEncode(value.getPointsInShape())));
+
+  String getShapeJson() {
+    Map<String, String> jsonMap = fileToShapeMap.map(
+        (key, value) => MapEntry(key, jsonEncode(value.getPointsInShape())));
     return jsonEncode(jsonMap);
+  }
 }
-
-}
-
-

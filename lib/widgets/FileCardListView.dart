@@ -1,6 +1,4 @@
-import 'dart:typed_data';
 
-import 'package:file_picker_cross/file_picker_cross.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -29,12 +27,17 @@ class FileCardListViewState extends State<FileCardListView> {
     return MouseRegion(
       onEnter: (PointerEnterEvent pe) => {
         setState(() {
-          _color = Colors.amber[800];
+          if (_color.value != Colors.green.value) {
+            _color = Colors.amber[800];
+          }
         })
       },
       onExit: (PointerExitEvent pe) => {
         setState(() {
-          _color = Colors.amber[200];
+          if (_color.value != Colors.green.value) {
+            _color = Colors.amber[200];
+          }
+          
         })
       },
         child: Card(
@@ -43,7 +46,12 @@ class FileCardListViewState extends State<FileCardListView> {
                 title: Text(widget.file.split("\\").last),
                 tileColor: _color,
                 selectedTileColor: Colors.amber,
-                onTap: () => {widget.onTap(widget.file)})));
+                onTap: () {
+                  setState(() {
+                    _color = Colors.green;
+                  });
+                  widget.onTap(widget.file);
+                  })));
   }
 
 
