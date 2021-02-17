@@ -60,6 +60,11 @@ class _MyHomePageState extends State<MyHomePage> {
   String ipAdress;
   List<Uint8List> imagesAsBytes = [];
 
+  bool _panEnabled = true;
+  bool _zoomEnabled = false;
+  bool _drawingEnabled = false;
+  int _value;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,23 +81,51 @@ class _MyHomePageState extends State<MyHomePage> {
             child: MouseRegion(
                 onHover: _updateCursorPosition,
                 child: InteractiveViewer(
-                    panEnabled: true,
-                    scaleEnabled: true,
+                    panEnabled: _panEnabled,
+                    scaleEnabled: _zoomEnabled,
+                    minScale: 1.0,
+                    maxScale: 5.0,
+
+                    onInteractionUpdate: (ScaleUpdateDetails details) {
+                      if (_drawingEnabled) {
+                        setState(() {
+                          Offset point = details.localFocalPoint;
+                          drawingPoints = List.from(drawingPoints)
+                            ..add(point);
+                        });
+                      }
+                    },
+                    onInteractionEnd: (ScaleEndDetails details) {
+                      if (_drawingEnabled) {
+                        convertPointsToShape();
+                        setState(() {
+                          drawingPoints.clear();
+                        });
+                      }
+                    },
                     child: Stack(children: [
+
                       GestureDetector(
+                        /*
                           onPanUpdate: (DragUpdateDetails details) {
-                            setState(() {
-                              Offset point = details.localPosition;
-                              drawingPoints = List.from(drawingPoints)
-                                ..add(point);
-                            });
+                            if (false) {
+                              setState(() {
+                                Offset point = details.localPosition;
+                                drawingPoints = List.from(drawingPoints)
+                                  ..add(point);
+                              });
+                            }
                           },
                           onPanEnd: (DragEndDetails details) {
-                            convertPointsToShape();
-                            setState(() {
-                              drawingPoints.clear();
-                            });
+                            if (false) {
+                              convertPointsToShape();
+                              setState(() {
+                                drawingPoints.clear();
+                              });
+                            }
                           },
+
+                         */
                           child: FractionallySizedBox(
                               widthFactor: 1.0,
                               heightFactor: 1.0,
@@ -218,6 +251,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return DropDownAppBar(
         child: Row(children: [
+          Spacer(),
+          /*
       Container(
           padding: EdgeInsets.all(10),
           child: ElevatedButton.icon(
@@ -230,12 +265,13 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             icon: Icon(Icons.folder),
             label: Text("Open files"),
-          )),
+          )),*/
       ToolMenu(onChanged: (value) {
         setState(() {
           drawingMode = value;
         });
       }),
+      /*
       ElevatedButton(
         child: Text("Save to file"),
         onPressed: () {
@@ -244,6 +280,56 @@ class _MyHomePageState extends State<MyHomePage> {
           writeShapesToFile(url, getShapeJson());
         },
       ),
+
+       */
+      Padding(padding: EdgeInsets.all(20.0),
+        child: Row(
+          children: [
+            GestureDetector(
+              onTap: () => setState(() {
+                _panEnabled = true;
+                _zoomEnabled = false;
+                _drawingEnabled = false;
+                _value = 0;}),
+              child: Container(
+                height: 60,
+                width: 60,
+                child: Icon(Icons.pan_tool,
+                  color: _value == 0 ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => setState(() {
+                _panEnabled = false;
+                _zoomEnabled = true;
+                _drawingEnabled = false;
+                _value = 1;}),
+              child: Container(
+                height: 60,
+                width: 60,
+                child: Icon(Icons.zoom_in, color: _value == 1 ? Colors.white : Colors.black,
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () => setState(() {
+                _panEnabled = false;
+                _zoomEnabled = false;
+                _drawingEnabled = true;
+                _value = 2;}),
+              child: Container(
+                height: 50,
+                width: 60,
+                child: Icon(Icons.edit,
+                  color: _value == 2 ? Colors.white : Colors.black,
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+      Padding(padding: EdgeInsets.all(20.0), child: Text(_currentlyOpenedImage.split("\\").last),),
       ElevatedButton(
         child: Text("Send to server"),
         onPressed: () {
@@ -268,7 +354,8 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
       ),
-      cursorContainer
+      cursorContainer,
+      Spacer()
     ]));
   }
 

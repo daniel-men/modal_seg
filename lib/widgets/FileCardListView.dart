@@ -48,7 +48,10 @@ class FileCardListViewState extends State<FileCardListView> {
                 selectedTileColor: Colors.amber,
                 onTap: () {
                   setState(() {
-                    _color = Colors.green;
+                    if (_color.value == Colors.green.value) {
+                      _color = Colors.amber;
+                    }
+                    else {_color = Colors.green;}
                   });
                   widget.onTap(widget.file);
                   })));
