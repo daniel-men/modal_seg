@@ -1,4 +1,4 @@
-  import 'dart:convert';
+import 'dart:convert';
 import 'dart:io';
 
 Future<void> writeShapesToFile(String filename, Object toJSON) async {

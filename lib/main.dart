@@ -1,24 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:file_picker_cross/file_picker_cross.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
-import 'package:modal_seg/IO.dart';
 import 'package:modal_seg/widgets/DataImporter.dart';
 
 import 'package:modal_seg/widgets/DropDownAppBar.dart';
 import 'package:modal_seg/widgets/SideBar.dart';
 import 'package:modal_seg/widgets/ToolMenu.dart';
-import 'package:modal_seg/shapes/Line.dart';
-import 'package:modal_seg/ShapePainter.dart';
+import 'package:modal_seg/widgets/Viewer.dart';
 
-import 'shapes/Circle.dart';
 import 'shapes/Shape.dart';
-import 'shapes/Rect.dart';
 
 void main() {
   runApp(MyApp());
@@ -76,74 +70,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: EdgeInsets.all(4.0),
                 child: SideBar(
                     elements: selectedFiles, onTap: changeSelectedImage))),
-        Expanded(
-            flex: 3,
-            child: MouseRegion(
-                onHover: _updateCursorPosition,
-                child: InteractiveViewer(
-                    panEnabled: _panEnabled,
-                    scaleEnabled: _zoomEnabled,
-                    minScale: 1.0,
-                    maxScale: 5.0,
-
-                    onInteractionUpdate: (ScaleUpdateDetails details) {
-                      if (_drawingEnabled) {
-                        setState(() {
-                          Offset point = details.localFocalPoint;
-                          drawingPoints = List.from(drawingPoints)
-                            ..add(point);
-                        });
-                      }
-                    },
-                    onInteractionEnd: (ScaleEndDetails details) {
-                      if (_drawingEnabled) {
-                        convertPointsToShape();
-                        setState(() {
-                          drawingPoints.clear();
-                        });
-                      }
-                    },
-                    child: Stack(children: [
-
-                      GestureDetector(
-                        /*
-                          onPanUpdate: (DragUpdateDetails details) {
-                            if (false) {
-                              setState(() {
-                                Offset point = details.localPosition;
-                                drawingPoints = List.from(drawingPoints)
-                                  ..add(point);
-                              });
-                            }
-                          },
-                          onPanEnd: (DragEndDetails details) {
-                            if (false) {
-                              convertPointsToShape();
-                              setState(() {
-                                drawingPoints.clear();
-                              });
-                            }
-                          },
-
-                         */
-                          child: FractionallySizedBox(
-                              widthFactor: 1.0,
-                              heightFactor: 1.0,
-                              child: Container(
-                                  //padding: EdgeInsets.all(4.0),
-                                  color: Color.fromARGB(0, 0, 0, 0),
-                                  child: CustomPaint(
-                                    painter: ShapePainter(drawingPoints,
-                                        drawingMode, selectedImage),
-                                  )))),
-                      FractionallySizedBox(
-                          widthFactor: 1.0,
-                          heightFactor: 1.0,
-                          child: Container(
-                              //padding: EdgeInsets.all(4.0),
-                              alignment: Alignment.topLeft,
-                              child: Stack(children: shapes)))
-                    ])))),
+                    Viewer(_panEnabled, _zoomEnabled, _drawingEnabled, _updateCursorPosition, _onNewShape, drawingMode, selectedImage, shapes)
+        
       ]),
       floatingActionButton: buildFAB(),
     );
@@ -158,6 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
         setState(() {
           drawingPoints.clear();
           shapes.clear();
+          fileToShapeMap.remove(_currentlyOpenedImage);
         });
       },
     );
@@ -172,29 +101,13 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void convertPointsToShape() {
-    switch (drawingMode) {
-      case "Circle":
-        double radius = sqrt(
-            pow(drawingPoints.last.dx - drawingPoints.first.dx, 2) +
-                pow(drawingPoints.last.dy - drawingPoints.first.dy, 2));
-        shapes.add(Circle(initialPoint: drawingPoints.first, radius: radius));
-        break;
-      case "Line":
-        //bool closed = Line.isClosed(drawingPoints);
-        drawingPoints = Line.prunePoints(drawingPoints);
-        shapes.add(Line(points: List.from(drawingPoints)));
-        break;
-      case "Rect":
-        double radius = sqrt(
-            pow(drawingPoints.last.dx - drawingPoints.first.dx, 2) +
-                pow(drawingPoints.last.dy - drawingPoints.first.dy, 2));
-        shapes.add(Rectangle(
-            Rect.fromCircle(center: drawingPoints.first, radius: radius)));
-        break;
-      default:
-    }
+  void _onNewShape(Shape shape) {
+    setState(() {
+      shapes = List.from(shapes)..add(shape);
+    });
   }
+
+
 
   Future<void> loadImage(String filename) async {
     Uint8List imageBytes;
@@ -247,6 +160,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   fontWeight: FontWeight.w500)));
     } else {
       cursorContainer = Container();
+    }
+
+    Widget currentlyOpenedImageName;
+    if (_currentlyOpenedImage != null) {
+      currentlyOpenedImageName = Padding(padding: EdgeInsets.all(20.0), child: Text(_currentlyOpenedImage.split("\\").last));
+    } else {
+      currentlyOpenedImageName = Container();
     }
 
     return DropDownAppBar(
@@ -329,7 +249,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-      Padding(padding: EdgeInsets.all(20.0), child: Text(_currentlyOpenedImage.split("\\").last),),
+      currentlyOpenedImageName,
       ElevatedButton(
         child: Text("Send to server"),
         onPressed: () {
@@ -348,11 +268,13 @@ class _MyHomePageState extends State<MyHomePage> {
         onNewDataCallback: (List<String> toBeAnnotated, List<Uint8List> bytes) {
           setState(() {
             selectedFiles = toBeAnnotated;
+            fileToShapeMap.clear();
             if (bytes != null) {
               imagesAsBytes = bytes;
             }
           });
         },
+        currentFiles: selectedFiles,
       ),
       cursorContainer,
       Spacer()

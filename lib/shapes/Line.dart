@@ -14,14 +14,14 @@ class Line extends Shape {
   @override
   paint(Canvas canvas, Paint paint) {
     Path path = Path();
-      
-      for (Offset point in points) {
-        Offset pointTranslated = point - points.first;
-        path.lineTo(pointTranslated.dx, pointTranslated.dy);
-      }
-      
-      //canvas.drawLine(points[i]-points.first, points[i + 1]-points.first, paint);
-    
+
+    for (Offset point in points) {
+      Offset pointTranslated = point - points.first;
+      path.lineTo(pointTranslated.dx, pointTranslated.dy);
+    }
+
+    //canvas.drawLine(points[i]-points.first, points[i + 1]-points.first, paint);
+    path.close();
     canvas.drawPath(path, paint);
     //canvas.drawRect(path.getBounds(), paint);
     //getPointsInShape(canvas);
@@ -33,12 +33,12 @@ class Line extends Shape {
   @override
   List<List<dynamic>> getPointsInShape() {
     Path path = Path();
-      
-      for (Offset point in points) {
-        Offset pointTranslated = point - points.first;
-        path.lineTo(pointTranslated.dx, pointTranslated.dy);
-      }      
-    
+
+    for (Offset point in points) {
+      Offset pointTranslated = point - points.first;
+      path.lineTo(pointTranslated.dx, pointTranslated.dy);
+    }
+
     Rect boundingBox = path.getBounds();
     boundingBox = boundingBox.translate(points.first.dx, points.first.dy);
 
@@ -46,9 +46,9 @@ class Line extends Shape {
     int j = 0;
     List<Offset> insidePoints = [];
 
-    while (i < boundingBox.width-1) {
+    while (i < boundingBox.width - 1) {
       j = 0;
-      while (j < boundingBox.height-1) {
+      while (j < boundingBox.height - 1) {
         double tempX = boundingBox.topLeft.dx + i;
         double tempY = boundingBox.topLeft.dy + j;
         Offset tempPoint = Offset(tempX, tempY);
@@ -57,8 +57,8 @@ class Line extends Shape {
         }
         j += 1;
       }
-      i += 1;      
-    } 
+      i += 1;
+    }
 
     /*
     Paint paint = new Paint()
@@ -71,7 +71,8 @@ class Line extends Shape {
 
     int rows = 2;
     int columns = insidePoints.length;
-    var twoDList = List.generate(rows, (i) => []..length = (columns), growable: false);
+    var twoDList =
+        List.generate(rows, (i) => []..length = (columns), growable: false);
     int k = 0;
     for (Offset offset in insidePoints) {
       twoDList[0][k] = offset.dx.toInt();
@@ -83,29 +84,30 @@ class Line extends Shape {
   }
 
   double _isLeft(Offset P0, Offset P1, Offset P2) {
-    return ((P1.dx - P0.dx) * (P2.dy - P0.dy) - (P2.dx - P0.dx) * (P1.dy - P0.dy));
+    return ((P1.dx - P0.dx) * (P2.dy - P0.dy) -
+        (P2.dx - P0.dx) * (P1.dy - P0.dy));
   }
-  
+
   int wnPnPoly(Offset p) {
     int wn = 0;
     int i = 0;
-    int n = points.length -1;
+    int n = points.length - 1;
 
     while (i < n) {
       if (points[i].dy <= p.dy) {
-        if (points[i+1].dy > p.dy) {
-          if (_isLeft(points[i], points[i+1], p) > 0) {
+        if (points[i + 1].dy > p.dy) {
+          if (_isLeft(points[i], points[i + 1], p) > 0) {
             wn += 1;
           }
         }
       } else {
-        if (points[i+1].dy <= p.dy) {
-          if (_isLeft(points[i], points[i+1], p) < 0) {
+        if (points[i + 1].dy <= p.dy) {
+          if (_isLeft(points[i], points[i + 1], p) < 0) {
             wn -= 1;
           }
         }
       }
-      i+= 1;
+      i += 1;
     }
 
     return wn;
@@ -118,7 +120,7 @@ class Line extends Shape {
     List<Offset> reversed = points.reversed.toList();
     for (int i in Iterable<int>.generate(points.length)) {
       Offset p1 = points[i];
-      for (int j in Iterable<int>.generate(points.length-i-10)) {
+      for (int j in Iterable<int>.generate(points.length - i - 10)) {
         Offset p2 = reversed[j];
         double dist = (p1 - p2).distanceSquared;
         if (dist < minDist) {
@@ -128,6 +130,6 @@ class Line extends Shape {
         }
       }
     }
-    return points.sublist(minP1, points.length-minP2);
+    return points.sublist(minP1, points.length - minP2);
   }
 }
