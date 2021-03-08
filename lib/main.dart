@@ -43,7 +43,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Offset> drawingPoints = <Offset>[];
-  List<Shape> shapes = <Shape>[];
+  //List<Shape> shapes = <Shape>[];
   String drawingMode = "Line";
   List<String> selectedFiles = [];
   ui.Image selectedImage;
@@ -70,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: EdgeInsets.all(4.0),
                 child: SideBar(
                     elements: selectedFiles, onTap: changeSelectedImage))),
-                    Viewer(_panEnabled, _zoomEnabled, _drawingEnabled, _updateCursorPosition, _onNewShape, drawingMode, selectedImage, shapes)
+                    Viewer(_panEnabled, _zoomEnabled, _drawingEnabled, _updateCursorPosition, _onNewShape, drawingMode, selectedImage, fileToShapeMap[_currentlyOpenedImage])
         
       ]),
       floatingActionButton: buildFAB(),
@@ -85,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
       onPressed: () {
         setState(() {
           drawingPoints.clear();
-          shapes.clear();
+          //shapes.clear();
           fileToShapeMap.remove(_currentlyOpenedImage);
         });
       },
@@ -103,7 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _onNewShape(Shape shape) {
     setState(() {
-      shapes = List.from(shapes)..add(shape);
+      //shapes = List.from(shapes)..add(shape);
+      fileToShapeMap[_currentlyOpenedImage] = shape;
     });
   }
 
@@ -127,23 +128,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> changeSelectedImage(String filename) async {
     // Save existing shape
-    if (shapes.isNotEmpty && _currentlyOpenedImage != null) {
-      fileToShapeMap[_currentlyOpenedImage] = shapes.first;
-    }
+    //if (shapes.isNotEmpty && _currentlyOpenedImage != null) {
+    //  fileToShapeMap[_currentlyOpenedImage] = shape;
+    //}
 
     // Set new image
     setState(() {
       _currentlyOpenedImage = filename;
-      shapes = [];
+      //shapes = [];
     });
     loadImage(filename);
 
     // Check if shapes already exist for this image
-    if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
-      setState(() {
-        shapes = List.from(shapes)..add(fileToShapeMap[_currentlyOpenedImage]);
-      });
-    }
+    //if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
+    //  setState(() {
+    //    shapes = List.from(shapes)..add(fileToShapeMap[_currentlyOpenedImage]);
+    //  });
+    //}
   }
 
   
@@ -311,7 +312,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 
 
-  String getShapeJson() {
+  String getShapeJson () {
     Map<String, String> jsonMap = fileToShapeMap.map(
         (key, value) => MapEntry(key, jsonEncode(value.getPointsInShape())));
     return jsonEncode(jsonMap);

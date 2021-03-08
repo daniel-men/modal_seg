@@ -5,8 +5,9 @@ import 'package:modal_seg/shapes/Shape.dart';
 
 class Line extends Shape {
   final List<Offset> points;
+  final Function onMoved;
 
-  Line({this.points}) {
+  Line({this.points, this.onMoved}) {
     xPosition = points.first.dx;
     yPosition = points.first.dy;
   }
@@ -28,7 +29,18 @@ class Line extends Shape {
   }
 
   @override
-  State<StatefulWidget> createState() => ShapeState(xPosition, yPosition);
+  void hasBeenMoved() {
+    double deltaX = xPosition - points.first.dx;
+    double deltaY = yPosition - points.first.dy;
+    List<Offset> translatedPoints = [];
+    for (Offset p in this.points) {
+      translatedPoints.add(p.translate(deltaX, deltaY));
+    }
+    onMoved(Line(points: translatedPoints, onMoved: onMoved));
+  }
+
+  @override
+  State<StatefulWidget> createState() => ShapeState();
 
   @override
   List<List<dynamic>> getPointsInShape() {

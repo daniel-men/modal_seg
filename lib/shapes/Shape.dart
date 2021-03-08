@@ -5,20 +5,15 @@ abstract class Shape extends StatefulWidget {
 
   double xPosition;
   double yPosition;
+  
   paint(Canvas canvas, Paint paint);
 
   List<List<dynamic>> getPointsInShape() {}
+  void hasBeenMoved() {}
 
 }
 
 class ShapeState extends State<Shape> {
-  double xPosition;
-  double yPosition;
-
-  ShapeState(double xPosition, double yPosition) {
-    this.xPosition = xPosition;
-    this.yPosition = yPosition;
-  }
 
   paint(Canvas canvas, Paint paint) {
     widget.paint(canvas, paint);
@@ -27,17 +22,19 @@ class ShapeState extends State<Shape> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: yPosition,
-      left: xPosition,
+      top: widget.yPosition,
+      left: widget.xPosition,
       child: GestureDetector(
         
         onPanUpdate: (tapInfo) {
           setState(() {
-            xPosition += tapInfo.delta.dx;
-            yPosition += tapInfo.delta.dy;
-          });
-          widget.xPosition = xPosition;
-          widget.yPosition = yPosition;
+            widget.xPosition += tapInfo.delta.dx;
+            widget.yPosition += tapInfo.delta.dy;
+            //widget.hasBeenMoved(tapInfo.delta.dx, tapInfo.delta.dy);
+          }); 
+        },
+        onPanEnd: (DragEndDetails details) {
+          widget.hasBeenMoved();
         },
         child: Container(
           child: CustomPaint(

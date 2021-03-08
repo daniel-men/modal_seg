@@ -18,12 +18,14 @@ class Viewer extends StatefulWidget {
   final Function _onNewShape;
   final String drawingMode;
   List<Offset> drawingPoints = [];
-  List<Shape> shapes = [];
+  List<Shape> shape = [];
   final ui.Image selectedImage;
 
   Viewer(this._panEnabled, this._zoomEnabled, this._drawingEnabled,
-   this._updateCursorPosition, this._onNewShape, this.drawingMode, this.selectedImage, List<Shape> shapes) {
-    this.shapes = shapes;
+   this._updateCursorPosition, this._onNewShape, this.drawingMode, this.selectedImage, Shape shape) {
+   if (shape != null) {
+     this.shape.add(shape);
+   }
   }
 
   @override
@@ -46,7 +48,7 @@ class ViewerState extends State<Viewer> {
         //bool closed = Line.isClosed(drawingPoints);
         widget.drawingPoints = Line.prunePoints(widget.drawingPoints);
         //widget.shapes.add(Line(points: List.from(widget.drawingPoints)));
-        widget._onNewShape(Line(points: List.from(widget.drawingPoints)));
+        widget._onNewShape(Line(points: List.from(widget.drawingPoints), onMoved: widget._onNewShape));
         break;
       case "Rect":
         double radius = sqrt(
@@ -140,7 +142,7 @@ class ViewerState extends State<Viewer> {
                           child: Container(
                               //padding: EdgeInsets.all(4.0),
                               alignment: Alignment.topLeft,
-                              child: Stack(children: widget.shapes)))
+                              child: Stack(children: widget.shape)))
                     ]));
   }
 
@@ -185,7 +187,7 @@ class ViewerState extends State<Viewer> {
                           child: Container(
                               //padding: EdgeInsets.all(4.0),
                               alignment: Alignment.topLeft,
-                              child: Stack(children: widget.shapes)))            
+                              child: Stack(children: widget.shape)))            
                     ],));
   }
   

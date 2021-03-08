@@ -18,6 +18,6 @@ class Circle extends Shape {
   }
 
   @override
-  State<StatefulWidget> createState() => ShapeState(xPosition, yPosition);
+  State<StatefulWidget> createState() => ShapeState();
 
 }
