@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 class FileCardListView extends StatefulWidget {
   final Function onTap;
   final String file;
+  Color color;
 
-  FileCardListView({this.onTap, this.file});
+  FileCardListView({this.onTap, this.file, this.color});
 
   @override
   State<StatefulWidget> createState() => FileCardListViewState();
@@ -18,7 +19,6 @@ class FileCardListView extends StatefulWidget {
 
 class FileCardListViewState extends State<FileCardListView> {
 
-  Color _color = Colors.amber[200];
   Icon _trailing;
 
 
@@ -27,15 +27,17 @@ class FileCardListViewState extends State<FileCardListView> {
     return MouseRegion(
       onEnter: (PointerEnterEvent pe) => {
         setState(() {
-          if (_color.value != Colors.green.value) {
-            _color = Colors.amber[800];
+          if (widget.color.value == Colors.yellow.value || widget.color.value == Colors.green.value) {            
+          } else {
+            widget.color = Colors.amber[800];
           }
         })
       },
       onExit: (PointerExitEvent pe) => {
         setState(() {
-          if (_color.value != Colors.green.value) {
-            _color = Colors.amber[200];
+          if (widget.color.value == Colors.yellow.value || widget.color.value == Colors.green.value) {            
+          } else {
+            widget.color = Colors.amber[200];
           }
           
         })
@@ -44,15 +46,17 @@ class FileCardListViewState extends State<FileCardListView> {
             child: ListTile(
                 trailing: _trailing,
                 title: Text(widget.file.split("\\").last),
-                tileColor: _color,
+                tileColor: widget.color,
                 selectedTileColor: Colors.amber,
                 onTap: () {
+                 
                   setState(() {
-                    if (_color.value == Colors.green.value) {
-                      _color = Colors.amber;
+                    if (widget.color.value == Colors.green.value) {
+                      widget.color = Colors.amber;
                     }
-                    else {_color = Colors.green;}
+                    else {widget.color = Colors.green;}
                   });
+                  
                   widget.onTap(widget.file);
                   })));
   }

@@ -14,6 +14,7 @@ class Viewer extends StatefulWidget {
   final bool _panEnabled;
   final bool _zoomEnabled;
   final bool _drawingEnabled;
+  final bool _closeShape;
   final Function _updateCursorPosition;
   final Function _onNewShape;
   final String drawingMode;
@@ -21,7 +22,7 @@ class Viewer extends StatefulWidget {
   List<Shape> shape = [];
   final ui.Image selectedImage;
 
-  Viewer(this._panEnabled, this._zoomEnabled, this._drawingEnabled,
+  Viewer(this._panEnabled, this._zoomEnabled, this._drawingEnabled,  this._closeShape,
    this._updateCursorPosition, this._onNewShape, this.drawingMode, this.selectedImage, Shape shape) {
    if (shape != null) {
      this.shape.add(shape);
@@ -41,21 +42,18 @@ class ViewerState extends State<Viewer> {
         double radius = sqrt(
             pow(widget.drawingPoints.last.dx - widget.drawingPoints.first.dx, 2) +
                 pow(widget.drawingPoints.last.dy - widget.drawingPoints.first.dy, 2));
-        //widget.shapes.add(Circle(initialPoint: widget.drawingPoints.first, radius: radius));
         widget._onNewShape(Circle(initialPoint: widget.drawingPoints.first, radius: radius));
         break;
       case "Line":
-        //bool closed = Line.isClosed(drawingPoints);
-        widget.drawingPoints = Line.prunePoints(widget.drawingPoints);
-        //widget.shapes.add(Line(points: List.from(widget.drawingPoints)));
+        if (widget._closeShape) {
+                  widget.drawingPoints = Line.prunePoints(widget.drawingPoints);
+        }
         widget._onNewShape(Line(points: List.from(widget.drawingPoints), onMoved: widget._onNewShape));
         break;
       case "Rect":
         double radius = sqrt(
             pow(widget.drawingPoints.last.dx - widget.drawingPoints.first.dx, 2) +
                 pow(widget.drawingPoints.last.dy - widget.drawingPoints.first.dy, 2));
-        //widget.shapes.add(Rectangle(
-        //    Rect.fromCircle(center: widget.drawingPoints.first, radius: radius)));
         widget._onNewShape(Rectangle(
             Rect.fromCircle(center: widget.drawingPoints.first, radius: radius)));
         break;

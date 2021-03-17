@@ -22,7 +22,10 @@ class Line extends Shape {
     }
 
     //canvas.drawLine(points[i]-points.first, points[i + 1]-points.first, paint);
-    path.close();
+    if ((points.last - points.first).distanceSquared < 10) {
+      path.close();
+    }
+    
     canvas.drawPath(path, paint);
     //canvas.drawRect(path.getBounds(), paint);
     //getPointsInShape(canvas);

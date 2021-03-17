@@ -58,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _zoomEnabled = false;
   bool _drawingEnabled = false;
   int _value;
+  bool _closeShape = false;
 
   @override
   Widget build(BuildContext context) {
@@ -69,8 +70,8 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Container(
                 padding: EdgeInsets.all(4.0),
                 child: SideBar(
-                    elements: selectedFiles, onTap: changeSelectedImage))),
-                    Viewer(_panEnabled, _zoomEnabled, _drawingEnabled, _updateCursorPosition, _onNewShape, drawingMode, selectedImage, fileToShapeMap[_currentlyOpenedImage])
+                    elements: selectedFiles, onTap: changeSelectedImage, fileToShapeMap: fileToShapeMap, currentlyOpened: _currentlyOpenedImage))),
+                    Viewer(_panEnabled, _zoomEnabled, _drawingEnabled, _closeShape, _updateCursorPosition, _onNewShape, drawingMode, selectedImage, fileToShapeMap[_currentlyOpenedImage])
         
       ]),
       floatingActionButton: buildFAB(),
@@ -246,7 +247,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   color: _value == 2 ? Colors.white : Colors.black,
                 ),
               ),
-            )
+            ),
+            Container(              
+              child: Row(children: [
+              Text("Close shape"),
+              Checkbox(value: _closeShape, onChanged: (value) => setState(() => _closeShape = value))
+            ],),)
           ],
         ),
       ),
