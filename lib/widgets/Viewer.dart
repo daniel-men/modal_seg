@@ -152,7 +152,7 @@ class ViewerState extends State<Viewer> {
                     scaleEnabled: widget._zoomEnabled,
                     minScale: 0.25,
                     maxScale: 5.0,
-
+                    boundaryMargin: const EdgeInsets.all(15.0),
                     onInteractionUpdate: (ScaleUpdateDetails details) {
                       if (widget._drawingEnabled) {
                         setState(() {
@@ -175,7 +175,7 @@ class ViewerState extends State<Viewer> {
                               widthFactor: 1.0,
                               heightFactor: 1.0,
                               child: Container(
-                                  //padding: EdgeInsets.all(4.0),
+                                  padding: EdgeInsets.all(4.0),
                                   color: Color.fromARGB(0, 0, 0, 0),
                                   child: CustomPaint(
                                     painter: ShapePainter(widget.drawingPoints,
@@ -185,7 +185,7 @@ class ViewerState extends State<Viewer> {
                           widthFactor: 1.0,
                           heightFactor: 1.0,
                           child: Container(
-                              //padding: EdgeInsets.all(4.0),
+                              padding: EdgeInsets.all(4.0),
                               alignment: Alignment.topLeft,
                               child: Stack(children: widget.shape)))            
                     ],));
