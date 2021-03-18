@@ -18,7 +18,8 @@ class ShapePainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     if (image != null) {
-      canvas.drawImage(image, Offset(0, 0), paint);
+      //canvas.drawImage(image, Offset(0, 0), paint);
+      paintImage(canvas: canvas, rect: Rect.fromLTRB(0, 0, 256, 256), image: image, fit: BoxFit.scaleDown, repeat: ImageRepeat.noRepeat, scale: 1.0);
     }
     drawCurrent(canvas, paint);
   }
