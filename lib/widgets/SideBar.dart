@@ -4,15 +4,13 @@ import 'package:modal_seg/shapes/Shape.dart';
 import 'package:modal_seg/widgets/FileCardListView.dart';
 
 class SideBar extends StatefulWidget {
-  List<String> elements;
+  final List<String> elements;
   final Function onTap;
   final Map<String, Shape> fileToShapeMap;
   final String currentlyOpened;
 
 
-  SideBar({this.onTap, List<String> elements, this.fileToShapeMap, this.currentlyOpened}) {
-    this.elements = elements;
-  }
+  SideBar({this.onTap, this.elements, this.fileToShapeMap, this.currentlyOpened});
 
   @override
   State<StatefulWidget> createState() => SideBarState();

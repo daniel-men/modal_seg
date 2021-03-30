@@ -2,12 +2,14 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:modal_seg/shapes/Shape.dart';
+import 'package:tuple/tuple.dart';
 
 class Line extends Shape {
   final List<Offset> points;
   final Function onMoved;
+  final bool closePath;
 
-  Line({this.points, this.onMoved}) {
+  Line({this.points, this.onMoved, this.closePath}) {
     xPosition = points.first.dx;
     yPosition = points.first.dy;
   }
@@ -21,8 +23,8 @@ class Line extends Shape {
       path.lineTo(pointTranslated.dx, pointTranslated.dy);
     }
 
-    //canvas.drawLine(points[i]-points.first, points[i + 1]-points.first, paint);
-    if ((points.last - points.first).distanceSquared < 10) {
+
+    if (this.closePath) {
       path.close();
     }
     
@@ -46,61 +48,65 @@ class Line extends Shape {
   State<StatefulWidget> createState() => ShapeState();
 
   @override
-  List<List<dynamic>> getPointsInShape() {
-    Path path = Path();
-
-    for (Offset point in points) {
-      Offset pointTranslated = point - points.first;
-      path.lineTo(pointTranslated.dx, pointTranslated.dy);
-    }
-
-    Rect boundingBox = path.getBounds();
-    boundingBox = boundingBox.translate(points.first.dx, points.first.dy);
-
-    int i = 0;
-    int j = 0;
+  Set<Tuple2<int, int>> getPointsInShape(int originalHeight, int originalWidth, int scaledHeight, int scaledWidth) {
     List<Offset> insidePoints = [];
+    if(closePath) {
+      Path path = Path();
 
-    while (i < boundingBox.width - 1) {
-      j = 0;
-      while (j < boundingBox.height - 1) {
-        double tempX = boundingBox.topLeft.dx + i;
-        double tempY = boundingBox.topLeft.dy + j;
-        Offset tempPoint = Offset(tempX, tempY);
-        if (wnPnPoly(tempPoint) != 0) {
-          insidePoints.add(tempPoint);
-        }
-        j += 1;
+      for (Offset point in points) {
+        Offset pointTranslated = point - points.first;
+        path.lineTo(pointTranslated.dx, pointTranslated.dy);
       }
-      i += 1;
+
+      Rect boundingBox = path.getBounds();
+      boundingBox = boundingBox.translate(points.first.dx, points.first.dy);
+
+      int i = 0;
+      int j = 0;
+      
+
+      while (i < boundingBox.width - 1) {
+        j = 0;
+        while (j < boundingBox.height - 1) {
+          double tempX = boundingBox.topLeft.dx + i;
+          double tempY = boundingBox.topLeft.dy + j;
+          Offset tempPoint = Offset(tempX, tempY);
+          if (wnPnPoly(tempPoint) != 0) {
+            insidePoints.add(Offset(tempX / scaledWidth * originalWidth, tempY / scaledHeight * originalHeight));
+          }
+          j += 1;
+        }
+        i += 1;
+      }
+    } else {
+      for (Offset p in points) {
+        insidePoints.add(p);
+        //insidePoints.add(Offset(p.dx / scaledWidth * originalWidth, p.dy / scaledHeight * originalHeight));
+      }
     }
 
-    /*
-    Paint paint = new Paint()
-      ..color = Colors.yellow
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 1.0
-      ..style = PaintingStyle.stroke;
-    canvas.drawPoints(PointMode.points, insidePoints, paint);
-    */
 
     int rows = 2;
     int columns = insidePoints.length;
+    Set<Tuple2<int, int>> coordinates = Set();
+
+
     var twoDList =
         List.generate(rows, (i) => []..length = (columns), growable: false);
     int k = 0;
     for (Offset offset in insidePoints) {
+      coordinates.add(Tuple2<int, int>(offset.dx.toInt(), offset.dy.toInt()));
       twoDList[0][k] = offset.dx.toInt();
       twoDList[1][k] = offset.dy.toInt();
       k += 1;
     }
 
-    return twoDList;
+    return coordinates;
   }
 
-  double _isLeft(Offset P0, Offset P1, Offset P2) {
-    return ((P1.dx - P0.dx) * (P2.dy - P0.dy) -
-        (P2.dx - P0.dx) * (P1.dy - P0.dy));
+  double _isLeft(Offset p0, Offset p1, Offset p2) {
+    return ((p1.dx - p0.dx) * (p2.dy - p0.dy) -
+        (p2.dx - p0.dx) * (p1.dy - p0.dy));
   }
 
   int wnPnPoly(Offset p) {
@@ -130,8 +136,8 @@ class Line extends Shape {
 
   static List<Offset> prunePoints(List<Offset> points) {
     double minDist = double.infinity;
-    int minP1;
-    int minP2;
+    int minp1;
+    int minp2;
     List<Offset> reversed = points.reversed.toList();
     for (int i in Iterable<int>.generate(points.length)) {
       Offset p1 = points[i];
@@ -140,11 +146,11 @@ class Line extends Shape {
         double dist = (p1 - p2).distanceSquared;
         if (dist < minDist) {
           minDist = dist;
-          minP1 = i;
-          minP2 = j;
+          minp1 = i;
+          minp2 = j;
         }
       }
     }
-    return points.sublist(minP1, points.length - minP2);
+    return points.sublist(minp1, points.length - minp2);
   }
 }

@@ -4,8 +4,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_seg/IO.dart';
 import 'dart:ui' as ui;
 import 'package:modal_seg/widgets/DataImporter.dart';
+import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
 
 import 'package:modal_seg/widgets/DropDownAppBar.dart';
 import 'package:modal_seg/widgets/SideBar.dart';
@@ -43,7 +45,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Offset> drawingPoints = <Offset>[];
-  //List<Shape> shapes = <Shape>[];
   String drawingMode = "Line";
   List<String> selectedFiles = [];
   ui.Image selectedImage;
@@ -54,11 +55,16 @@ class _MyHomePageState extends State<MyHomePage> {
   String ipAdress;
   List<Uint8List> imagesAsBytes = [];
 
+  // Drawing options
   bool _panEnabled = true;
   bool _zoomEnabled = false;
   bool _drawingEnabled = false;
   int _value;
   bool _closeShape = false;
+
+  // Image properties needed for translation
+  int _originalHeight;
+  int _originalWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -70,9 +76,20 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Container(
                 padding: EdgeInsets.all(4.0),
                 child: SideBar(
-                    elements: selectedFiles, onTap: changeSelectedImage, fileToShapeMap: fileToShapeMap, currentlyOpened: _currentlyOpenedImage))),
-                    Viewer(_panEnabled, _zoomEnabled, _drawingEnabled, _closeShape, _updateCursorPosition, _onNewShape, drawingMode, selectedImage, fileToShapeMap[_currentlyOpenedImage])
-        
+                    elements: selectedFiles,
+                    onTap: changeSelectedImage,
+                    fileToShapeMap: fileToShapeMap,
+                    currentlyOpened: _currentlyOpenedImage))),
+        Viewer(
+            _panEnabled,
+            _zoomEnabled,
+            _drawingEnabled,
+            _closeShape,
+            _updateCursorPosition,
+            _onNewShape,
+            drawingMode,
+            selectedImage,
+            fileToShapeMap[_currentlyOpenedImage])
       ]),
       floatingActionButton: buildFAB(),
     );
@@ -109,8 +126,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-
-
   Future<void> loadImage(String filename) async {
     Uint8List imageBytes;
     if (imagesAsBytes.isNotEmpty) {
@@ -121,6 +136,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
     ui.Codec codec = await ui.instantiateImageCodec(imageBytes);
     ui.Image _image = (await codec.getNextFrame()).image;
+
+    _originalHeight = _image.height;
+    _originalWidth = _image.width;
 
     setState(() {
       selectedImage = _image;
@@ -148,8 +166,6 @@ class _MyHomePageState extends State<MyHomePage> {
     //}
   }
 
-  
-
   PreferredSizeWidget buildAppBar() {
     Widget cursorContainer;
     if (_cursorPosition != null) {
@@ -166,15 +182,17 @@ class _MyHomePageState extends State<MyHomePage> {
 
     Widget currentlyOpenedImageName;
     if (_currentlyOpenedImage != null) {
-      currentlyOpenedImageName = Padding(padding: EdgeInsets.all(20.0), child: Text(_currentlyOpenedImage.split("\\").last));
+      currentlyOpenedImageName = Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Text(_currentlyOpenedImage.split("\\").last));
     } else {
       currentlyOpenedImageName = Container();
     }
 
     return DropDownAppBar(
         child: Row(children: [
-          Spacer(),
-          /*
+      Spacer(),
+      /*
       Container(
           padding: EdgeInsets.all(10),
           child: ElevatedButton.icon(
@@ -204,7 +222,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
 
        */
-      Padding(padding: EdgeInsets.all(20.0),
+      Padding(
+        padding: EdgeInsets.all(20.0),
         child: Row(
           children: [
             GestureDetector(
@@ -212,11 +231,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 _panEnabled = true;
                 _zoomEnabled = false;
                 _drawingEnabled = false;
-                _value = 0;}),
+                _value = 0;
+              }),
               child: Container(
                 height: 60,
                 width: 60,
-                child: Icon(Icons.pan_tool,
+                child: Icon(
+                  Icons.pan_tool,
                   color: _value == 0 ? Colors.white : Colors.black,
                 ),
               ),
@@ -226,11 +247,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 _panEnabled = false;
                 _zoomEnabled = true;
                 _drawingEnabled = false;
-                _value = 1;}),
+                _value = 1;
+              }),
               child: Container(
                 height: 60,
                 width: 60,
-                child: Icon(Icons.zoom_in, color: _value == 1 ? Colors.white : Colors.black,
+                child: Icon(
+                  Icons.zoom_in,
+                  color: _value == 1 ? Colors.white : Colors.black,
                 ),
               ),
             ),
@@ -239,29 +263,37 @@ class _MyHomePageState extends State<MyHomePage> {
                 _panEnabled = false;
                 _zoomEnabled = false;
                 _drawingEnabled = true;
-                _value = 2;}),
+                _value = 2;
+              }),
               child: Container(
                 height: 50,
                 width: 60,
-                child: Icon(Icons.edit,
+                child: Icon(
+                  Icons.edit,
                   color: _value == 2 ? Colors.white : Colors.black,
                 ),
               ),
             ),
-            Container(              
-              child: Row(children: [
-              Text("Close shape"),
-              Checkbox(value: _closeShape, onChanged: (value) => setState(() => _closeShape = value))
-            ],),)
+            Container(
+              child: Row(
+                children: [
+                  Text("Close shape"),
+                  Checkbox(
+                      value: _closeShape,
+                      onChanged: (value) => setState(() => _closeShape = value))
+                ],
+              ),
+            )
           ],
         ),
       ),
       currentlyOpenedImageName,
       ElevatedButton(
         child: Text("Send to server"),
-        onPressed: () {
+        onPressed: () async {
           String url = 'http://$ipAdress:5000/server';
-          DataImporter.sendToServer(url, getShapeJson());
+          String shapeJson = await getShapeJson();
+          DataImporter.sendToServer(url, shapeJson);
         },
       ),
       ElevatedButton(
@@ -302,25 +334,34 @@ class _MyHomePageState extends State<MyHomePage> {
               decoration: InputDecoration(hintText: "Enter valid IP adress"),
             ),
             actions: [
-              FlatButton(
-                  color: Colors.green,
+              TextButton(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(Colors.green)),
                   onPressed: () {
                     setState(() {
                       ipAdress = valueText;
                       Navigator.pop(context);
                     });
                   },
-                  child: Text("OK"))
+                  child: Text("OK", style: TextStyle(color: Colors.white)))
             ],
           );
         });
   }
 
+  Future<String> getShapeJson() async {
+    Map<String, String> jsonMap = {};
+    for (MapEntry<String, Shape> mapEntry in fileToShapeMap.entries) {
+      
+      List<List<dynamic>> points = await snapToBlack(
+          selectedImage,
+          mapEntry.value
+              .getPointsInShape(_originalHeight, _originalWidth, 256, 256));
+              
+      //List<List<dynamic>> points = tupleToList(mapEntry.value.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
+      jsonMap[mapEntry.key] = jsonEncode(points);
+    }
 
-
-  String getShapeJson () {
-    Map<String, String> jsonMap = fileToShapeMap.map(
-        (key, value) => MapEntry(key, jsonEncode(value.getPointsInShape())));
     return jsonEncode(jsonMap);
   }
 }

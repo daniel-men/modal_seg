@@ -60,8 +60,8 @@ class DataImporter extends StatelessWidget {
             return Container(
                 color: Colors.green[400],
                 margin: EdgeInsets.all(8.0),
-                child: RaisedButton(
-                    color: Colors.green[900],
+                child: ElevatedButton(
+                  style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.green[900])),
                     onPressed: () {
                       loadNewDataAsync(
                           filenames,

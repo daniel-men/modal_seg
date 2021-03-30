@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
 import 'package:modal_seg/ShapePainter.dart';
 import 'package:modal_seg/shapes/Circle.dart';
 import 'package:modal_seg/shapes/Line.dart';
@@ -48,7 +49,7 @@ class ViewerState extends State<Viewer> {
         if (widget._closeShape) {
                   widget.drawingPoints = Line.prunePoints(widget.drawingPoints);
         }
-        widget._onNewShape(Line(points: List.from(widget.drawingPoints), onMoved: widget._onNewShape));
+        widget._onNewShape(Line(points: List.from(widget.drawingPoints), onMoved: widget._onNewShape, closePath: widget._closeShape));
         break;
       case "Rect":
         double radius = sqrt(
@@ -65,7 +66,7 @@ class ViewerState extends State<Viewer> {
   Widget build(BuildContext context) {
     Widget viewer;
     if (Platform.isWindows) {
-      viewer = windowsViewer();
+      viewer = windowsViewer(context);
     } else if (Platform.isIOS) {
       viewer = iOsViewer();
     }
@@ -79,8 +80,13 @@ class ViewerState extends State<Viewer> {
   }
 
 
-  Widget windowsViewer() {
-    return InteractiveViewer(
+  Widget windowsViewer(BuildContext context) {
+    
+    return FutureBuilder(future: applySobelUI(widget.selectedImage, amount: 1),
+      builder: (BuildContext context, AsyncSnapshot<ui.Image> snapshot) {
+      if (snapshot.hasData) {
+    
+      return InteractiveViewer(
                     panEnabled: widget._panEnabled,
                     scaleEnabled: widget._zoomEnabled,
                     minScale: 0.5,
@@ -134,7 +140,7 @@ class ViewerState extends State<Viewer> {
                                   color: Color.fromARGB(0, 0, 0, 0),
                                   child: CustomPaint(
                                     painter: ShapePainter(widget.drawingPoints,
-                                        widget.drawingMode, widget.selectedImage),
+                                        widget.drawingMode, snapshot.data),
                                   )))),
                       FractionallySizedBox(
                          widthFactor: 1.0,
@@ -143,7 +149,15 @@ class ViewerState extends State<Viewer> {
                               padding: EdgeInsets.all(4.0),
                               alignment: Alignment.topLeft,
                               child: Stack(children: widget.shape)))
-                    ]));
+                    ]));}
+                    
+                    
+                    else {
+                      return Container();
+                    }
+                    
+    });
+    
   }
 
   Widget iOsViewer() {

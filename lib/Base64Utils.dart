@@ -9,15 +9,18 @@ class Base64Util {
   static List<int> base64Decoder(String str) {
     /**
      * 由于后台说sun公司的某些旧的包处理出来的base64字符串包含换行符，所以先将其删除
+     * Because the background said that some old packages of Sun company processed the base64 string contains a newline character, so delete it first
      */
     str = str.replaceAll("\n", "");
-    List<int> list = List();
+    List<int> list = [];
     /**
      * 由于需要将传入的字符串按4字节分组，需要先判断其长度是否为4的整数倍
+     * Since the incoming string needs to be grouped by 4 bytes, it is necessary to first determine whether its length is an integer multiple of 4
      */
     if (str.length % 4 == 0) {
       /**
        * 循环取字符串的字符，每次取4个
+       * Take the characters of the string in a loop, taking 4 each time
        */
       for (int i = 0; i < str.length; i += 4) {
         String char1 = str.substring(i, i + 1);
@@ -27,6 +30,8 @@ class Base64Util {
 
         /**
          * 将取出的字符按照字码表进行转换成数字，当为等于号时，则不进行处理，因为等于号是填充符
+         * Convert the retrieved character into a number according to the code table.
+         *  When it is an equal sign, it will not be processed because the equal sign is a filler
          */
         int code1 = _base64Char.indexOf(char1);
         int code2 = _base64Char.indexOf(char2);
@@ -41,17 +46,24 @@ class Base64Util {
 
         /**
          * 将转换后的数字进行分割处理，当对应字符为等于号，则不进行分割处理
+         * Split the converted number. When the corresponding character is an equal sign, the split will not be performed
          */
         /**
          * 将第一个字节与0x3F，得到低6位，然后左移2位，腾出低2位的位置
+         * Combine the first byte with 0x3F to get the lower 6 bits, then shift 2 bits to the left to make room for the lower 2 bits
          * 然后将第二个字节与0x30，清除高2位和低4位，再右移4位，
          * 与前一个高6位相加，得到第一个新字节
+         * Then the second byte is 0x30, the high 2 bits and low 4 bits are cleared, and then 4 bits are shifted to the right,
+         * Add the previous high 6 bits to get the first new byte
          */
         int decode1 = ((code1 & 0x3F) << 2) + ((code2 & 0x30) >> 4);
         /**
          * 将第二个字节与0x0F，得到低4位，然后左移4位，腾出低4位的位置
          * 然后将第三个字节与0x3C，清除高2位和低2位，再右移2位，
          * 与前一个高4位相加，得到第二个新字节
+         * Combine the second byte with 0x0F to get the lower 4 bits, and then shift 4 bits to the left to make room for the lower 4 bits
+         * Then the third byte and 0x3C, clear the high 2 bits and low 2 bits, and then shift 2 bits to the right,
+         * Add the previous high 4 bits to get the second new byte
          */
         int decode2;
         if ("=" != char3) {
@@ -60,6 +72,8 @@ class Base64Util {
         /**
          * 将第三个字节与0x03，得到低2位，然后左移6位，腾出低6位的位置
          * 然后直接与第四个字节相加，得到第三个新字节
+         * Combine the third byte with 0x03 to get the lower 2 bits, and then shift 6 bits to the left to make room for the lower 6 bits
+         * Then directly add to the fourth byte to get the third new byte
          */
         int decode3;
         if ("=" != char4) {
