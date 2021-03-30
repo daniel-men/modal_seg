@@ -22,7 +22,6 @@ Future<List<List<dynamic>>> snapToBlack(ui.Image inputImage, Set<Tuple2<int, int
   img.Image image = await convertImage(inputImage);
   image = img.copyResize(image, width: 256, height: 256);
   image = img.gaussianBlur(image, 2);
-  //image = img.sobel(image);
 
   List<Tuple2<int, int>> pointsAsList = points.toList();
   List<List<dynamic>> newPoints = [];

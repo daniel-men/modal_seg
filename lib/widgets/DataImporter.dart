@@ -32,7 +32,7 @@ class DataImporter extends StatelessWidget {
 
   Future<Map<dynamic, dynamic>> checkForNewData() async {
    
-      String url = 'http://$ipAdress:5000/server';
+      String url = 'https://$ipAdress:5000/server';
       try {
         http.Response response = await http.get(url);
         var decodedResponse = jsonDecode(response.body);

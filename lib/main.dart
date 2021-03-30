@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_seg/IO.dart';
 import 'dart:ui' as ui;
 import 'package:modal_seg/widgets/DataImporter.dart';
 import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
@@ -15,8 +14,10 @@ import 'package:modal_seg/widgets/ToolMenu.dart';
 import 'package:modal_seg/widgets/Viewer.dart';
 
 import 'shapes/Shape.dart';
+import 'package:modal_seg/MyHttpOverrides.dart';
 
 void main() {
+  HttpOverrides.global = MyHttpOverrides();
   runApp(MyApp());
 }
 
