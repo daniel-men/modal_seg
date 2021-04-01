@@ -293,9 +293,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ElevatedButton(
         child: Text("Send to server"),
         onPressed: () async {
-          String url = 'https://$ipAdress:5000/server';
+          
           String shapeJson = await getShapeJson();
-          DataImporter.sendToServer(url, shapeJson);
+          DataImporter.sendToServer(ipAdress, shapeJson);
         },
       ),
       ElevatedButton(

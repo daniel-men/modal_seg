@@ -1,5 +1,3 @@
-
-
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -33,7 +31,7 @@ class DataImporter extends StatelessWidget {
   }
 
   Future<Map<dynamic, dynamic>?> checkForNewData() async {
-   
+    if (ipAdress != null) {
       String url = 'https://$ipAdress:5000/server';
       try {
         http.Response response = await http.get(Uri.parse(url));
@@ -43,7 +41,7 @@ class DataImporter extends StatelessWidget {
         //print(e.toString());
         return Map();
       }
-   
+    }
   }
 
   @override
@@ -63,7 +61,9 @@ class DataImporter extends StatelessWidget {
                 color: Colors.green[400],
                 margin: EdgeInsets.all(8.0),
                 child: ElevatedButton(
-                  style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.green[900])),
+                    style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.green[900])),
                     onPressed: () {
                       loadNewDataAsync(
                           filenames,
@@ -72,7 +72,6 @@ class DataImporter extends StatelessWidget {
                                   Base64Util.base64Decoder(v)))
                               .toList()
                               .cast<Uint8List>());
-                              
                     },
                     child: Text(
                       "Import new data",
@@ -90,7 +89,11 @@ class DataImporter extends StatelessWidget {
         }); // builder should also handle the case when data is not fetched yet
   }
 
-  static void sendToServer(String url, dynamic json) {
-    http.post(Uri.parse(url), headers: {'content-type': 'application/json'}, body: json);
+  static void sendToServer(String? ipAddress, dynamic json) {
+    if (ipAddress != null) {
+      String url = 'https://$ipAddress:5000/server';
+      http.post(Uri.parse(url),
+          headers: {'content-type': 'application/json'}, body: json);
+    }
   }
 }
