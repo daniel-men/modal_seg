@@ -1,10 +1,12 @@
+
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ToolMenu extends StatefulWidget {
-  final Function onChanged;
+  final Function? onChanged;
 
-  const ToolMenu({Key key, this.onChanged}) : super(key: key);
+  const ToolMenu({Key? key, this.onChanged}) : super(key: key);
 
 
   
@@ -15,7 +17,7 @@ class ToolMenu extends StatefulWidget {
 }
 
 class ToolMenuState extends State<ToolMenu> {
-  String dropDownValue = "Line";
+  String? dropDownValue = "Line";
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +26,8 @@ class ToolMenuState extends State<ToolMenu> {
           padding: EdgeInsets.all(10),
           child: DropdownButton(
             value: dropDownValue,
-            onChanged: (String newValue) {
-              widget.onChanged(newValue);
+            onChanged: (String? newValue) {
+              widget.onChanged!(newValue);
               setState(() {
                 dropDownValue = newValue;
               });              

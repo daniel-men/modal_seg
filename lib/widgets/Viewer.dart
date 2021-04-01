@@ -1,6 +1,9 @@
+
+
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
 import 'package:modal_seg/ShapePainter.dart';
 import 'package:modal_seg/shapes/Circle.dart';
@@ -9,6 +12,8 @@ import 'package:modal_seg/shapes/Shape.dart';
 import 'package:modal_seg/shapes/Rect.dart';
 import 'dart:ui' as ui;
 import 'dart:io' show Platform;
+
+import 'package:modal_seg/widgets/CustomInteractiveViewer.dart';
 
 
 class Viewer extends StatefulWidget {
@@ -21,10 +26,10 @@ class Viewer extends StatefulWidget {
   final String drawingMode;
   List<Offset> drawingPoints = [];
   List<Shape> shape = [];
-  final ui.Image selectedImage;
+  final ui.Image? selectedImage;
 
   Viewer(this._panEnabled, this._zoomEnabled, this._drawingEnabled,  this._closeShape,
-   this._updateCursorPosition, this._onNewShape, this.drawingMode, this.selectedImage, Shape shape) {
+   this._updateCursorPosition, this._onNewShape, this.drawingMode, this.selectedImage, Shape? shape) {
    if (shape != null) {
      this.shape.add(shape);
    }
@@ -64,7 +69,7 @@ class ViewerState extends State<Viewer> {
 
   @override
   Widget build(BuildContext context) {
-    Widget viewer;
+    Widget? viewer;
     if (Platform.isWindows) {
       viewer = windowsViewer(context);
     } else if (Platform.isIOS) {
@@ -74,18 +79,18 @@ class ViewerState extends State<Viewer> {
     return Expanded(
             flex: 3,
             child: MouseRegion(
-                onHover: widget._updateCursorPosition,
+                onHover: widget._updateCursorPosition as void Function(PointerHoverEvent)?,
                 child: viewer                
                 ));
   }
 
 
   Widget windowsViewer(BuildContext context) {
-    
-    return FutureBuilder(future: applySobelUI(widget.selectedImage, amount: 1),
+
+    return FutureBuilder(future: applySobelUI(widget.selectedImage!, amount: 1),
       builder: (BuildContext context, AsyncSnapshot<ui.Image> snapshot) {
       if (snapshot.hasData) {
-    
+
       return InteractiveViewer(
                     panEnabled: widget._panEnabled,
                     scaleEnabled: widget._zoomEnabled,
@@ -151,22 +156,23 @@ class ViewerState extends State<Viewer> {
                               child: Stack(children: widget.shape)))
                     ]));}
                     
-                    
+
                     else {
                       return Container();
                     }
                     
     });
-    
+
   }
 
   Widget iOsViewer() {
-    return InteractiveViewer(
+    return CustomInteractiveViewer(
                     panEnabled: widget._panEnabled,
                     scaleEnabled: widget._zoomEnabled,
+                    drawingEnabled: widget._drawingEnabled,
                     minScale: 0.25,
                     maxScale: 5.0,
-                    boundaryMargin: const EdgeInsets.all(15.0),
+                    //boundaryMargin: const EdgeInsets.all(15.0),
                     onInteractionUpdate: (ScaleUpdateDetails details) {
                       if (widget._drawingEnabled) {
                         setState(() {
@@ -177,14 +183,15 @@ class ViewerState extends State<Viewer> {
                       }
                     },
                     onInteractionEnd: (ScaleEndDetails details) {
-                      if (widget._drawingEnabled) {
+                      if (widget._drawingEnabled && widget.drawingPoints.isNotEmpty) {
                         convertPointsToShape();
                         setState(() {
                           widget.drawingPoints.clear();
                         });
                       }
                     },
-                    child: Stack(children: [
+                    child: Container(
+    child: Stack(children: [
                       FractionallySizedBox(
                               widthFactor: 1.0,
                               heightFactor: 1.0,
@@ -200,9 +207,9 @@ class ViewerState extends State<Viewer> {
                           heightFactor: 1.0,
                           child: Container(
                               padding: EdgeInsets.all(4.0),
-                              alignment: Alignment.topLeft,
+                              //alignment: Alignment.topLeft,
                               child: Stack(children: widget.shape)))            
-                    ],));
+                    ],)));
   }
   
 }

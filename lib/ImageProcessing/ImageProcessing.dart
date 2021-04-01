@@ -1,10 +1,12 @@
+
+
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:image/image.dart' as img;
 import 'package:modal_seg/ImageProcessing/ArrayOps.dart';
 import 'package:modal_seg/ImageProcessing/Conversions.dart';
-import 'package:scidart/numdart.dart';
+//import 'package:scidart/numdart.dart';
 import 'package:tuple/tuple.dart';
 
 enum DIRECTION {
@@ -18,13 +20,13 @@ int getGrayPixelValue(int x, int y, img.Image image) {
   return img.getLuminance(pixelEncoded);
 }
 
-Future<List<List<dynamic>>> snapToBlack(ui.Image inputImage, Set<Tuple2<int, int>> points) async {
+Future<List<List<dynamic>?>> snapToBlack(ui.Image inputImage, Set<Tuple2<int, int>> points) async {
   img.Image image = await convertImage(inputImage);
   image = img.copyResize(image, width: 256, height: 256);
   image = img.gaussianBlur(image, 2);
 
   List<Tuple2<int, int>> pointsAsList = points.toList();
-  List<List<dynamic>> newPoints = [];
+  List<List<dynamic>?> newPoints = [];
   List<int> offsets = [for(var i=-5; i<=5; i+=1) i];
   
 
@@ -47,23 +49,23 @@ Future<List<List<dynamic>>> snapToBlack(ui.Image inputImage, Set<Tuple2<int, int
   }
 
 
-
+  //return newPoints;
   return correctConnectivity(newPoints, image);
 }
 
-List<List<dynamic>> correctConnectivity(List<List<dynamic>> points, img.Image image) {
+List<List<dynamic>?> correctConnectivity(List<List<dynamic>?> points, img.Image image) {
   for (var i = 1; i < points.length; i++) {
-    if (!isConnected(points[i-1], points[i])) {
-      List<dynamic> newPoint = findDarkestPixel(getLowerPointNeighbours(points[i-1][0], points[i-1][1]), image);
+    if (!isConnected(points[i-1]!, points[i]!)) {
+      List<dynamic>? newPoint = findDarkestPixel(getLowerPointNeighbours(points[i-1]![0], points[i-1]![1]), image);
       points[i] = newPoint;
     }
   }
   return points;
 }
 
-List<dynamic> findDarkestPixel(List<List<dynamic>> pixels, img.Image image) {
+List<dynamic>? findDarkestPixel(List<List<dynamic>> pixels, img.Image image) {
   int darkest = 256;
-  List<dynamic> point;
+  List<dynamic>? point;
   for (var i = 0; i < pixels.length; i++) {
     int pixel = getGrayPixelValue(pixels[i][0], pixels[i][1], image);
     if (pixel < darkest) {
@@ -92,7 +94,7 @@ bool isConnected(List<dynamic> point1, List<dynamic> point2) {
 }
 
 Future<ui.Image> applySobel(Uint8List bytes, {num amount = 1.0}) async {
-  img.Image image = convertByteListToImage(bytes);
+  img.Image image = convertByteListToImage(bytes)!;
   var edgeImage = img.sobel(image, amount: amount);
   return convertToUiImage(edgeImage);
 }
@@ -105,13 +107,13 @@ Future<ui.Image> applySobelUI(ui.Image src, {num amount = 1.0}) async {
 
 Future<ui.Image> applyGaussian(ui.Image imageIn, {num radius = 1.0}) async {
   img.Image image = await convertImage(imageIn);
-  img.Image blurredImage = img.gaussianBlur(image, radius);
+  img.Image blurredImage = img.gaussianBlur(image, radius as int);
   return convertToUiImage(blurredImage);
 }
 
 int calculateGradient(int x, int y, img.Image image, DIRECTION direction) {
-  int p;
-  int p1;
+  late int p;
+  late int p1;
   if (direction == DIRECTION.xDirection) {
     p = getGrayPixelValue(x+1, y, image);
     p1 = getGrayPixelValue(x-1, y, image);
@@ -123,14 +125,14 @@ int calculateGradient(int x, int y, img.Image image, DIRECTION direction) {
   }  
   return ((p - p1) ~/ 2);
 }
-
-List<Array2d> calculateGradients(Array2d src, {DIRECTION direction = DIRECTION.both}) {
+/*
+List<Array2d?> calculateGradients(Array2d src, {DIRECTION direction = DIRECTION.both}) {
   final Array2d fixed2 = Array2d.fixed(src.row, src.column, initialValue: 2);
   
-  Array2d dX;
-  Array2d dY;
+  Array2d? dX;
+  Array2d? dY;
   if (direction == DIRECTION.xDirection || direction == DIRECTION.both) { 
-    Array2d tempSrc = padArray(src, direction: DIRECTION.xDirection);
+    Array2d tempSrc = padArray(src, direction: DIRECTION.xDirection)!;
     dX = Array2d.empty();
     for (var i = 1; i < tempSrc.row-1; i++) {
       dX.add((tempSrc[i+1] - tempSrc[i-1]));
@@ -139,7 +141,7 @@ List<Array2d> calculateGradients(Array2d src, {DIRECTION direction = DIRECTION.b
   }
   if (direction == DIRECTION.yDirection || direction == DIRECTION.both) {
     
-    Array2d tempSrc = padArray(transpose(src), direction: DIRECTION.xDirection);
+    Array2d tempSrc = padArray(transpose(src), direction: DIRECTION.xDirection)!;
     dY = Array2d.empty();
     for (var i = 1; i < tempSrc.row-1; i++) {
       dY.add((tempSrc[i+1] - tempSrc[i-1]));
@@ -171,12 +173,13 @@ Future<ui.Image> calculateGradientImageUI(ui.Image src, {DIRECTION direction = D
   img.Image image = await convertImage(src);
   //return convertToUiImage(img.normalize(calculateGradientImage(image), 0, 255));
   Array2d imageAsArray = imageToArray(image);
-  List<Array2d> gradients = calculateGradients(imageAsArray);
+  List<Array2d?> gradients = calculateGradients(imageAsArray);
   
-  return convertToUiImage(arrayToImage(normalize(gradients[1], 0, 255)));
+  return convertToUiImage(arrayToImage(normalize(gradients[1]!, 0, 255)));
 } 
 
 calculateHessianMatrix(img.Image image) {
   Array2d imageAsArray = imageToArray(image);
-  List<Array2d> gradients = calculateGradients(imageAsArray);
+  List<Array2d?> gradients = calculateGradients(imageAsArray);
 }
+*/

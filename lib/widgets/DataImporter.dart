@@ -1,3 +1,5 @@
+
+
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -9,17 +11,17 @@ import 'package:modal_seg/Base64Utils.dart';
 import 'package:http/http.dart' as http;
 
 class DataImporter extends StatelessWidget {
-  final Function onNewDataCallback;
-  final String ipAdress;
-  final List<String> currentFiles;
+  final Function? onNewDataCallback;
+  final String? ipAdress;
+  final List<String>? currentFiles;
   bool queryForNewData = true;
 
   DataImporter(
-      {Key key, this.onNewDataCallback, this.ipAdress, this.currentFiles})
+      {Key? key, this.onNewDataCallback, this.ipAdress, this.currentFiles})
       : super(key: key);
 
   Future<void> loadNewDataAsync(List<String> filenames,
-      [List<Uint8List> bytes]) async {
+      [List<Uint8List>? bytes]) async {
     List<String> toBeAnnotated = [];
     String filePath =
         "C:\\Users\\d.mensing\\Documents\\Projekte\\Cure-OP\\Daten\\cropped\\unlabelled_frames\\";
@@ -27,14 +29,14 @@ class DataImporter extends StatelessWidget {
       toBeAnnotated.add(fileName);
     }
 
-    onNewDataCallback(toBeAnnotated, bytes);
+    onNewDataCallback!(toBeAnnotated, bytes);
   }
 
-  Future<Map<dynamic, dynamic>> checkForNewData() async {
+  Future<Map<dynamic, dynamic>?> checkForNewData() async {
    
       String url = 'https://$ipAdress:5000/server';
       try {
-        http.Response response = await http.get(url);
+        http.Response response = await http.get(Uri.parse(url));
         var decodedResponse = jsonDecode(response.body);
         return decodedResponse;
       } catch (SocketException) {
@@ -49,7 +51,7 @@ class DataImporter extends StatelessWidget {
     return StreamBuilder(
         stream: Stream.periodic(Duration(seconds: 10)).asyncMap(
             (i) => checkForNewData()), // i is null here (check periodic docs)
-        builder: (context, snapshot) {
+        builder: (BuildContext context, AsyncSnapshot snapshot) {
           List<String> filenames = [];
           if (snapshot.hasData) {
             filenames = List<String>.from(snapshot.data.keys);
@@ -89,6 +91,6 @@ class DataImporter extends StatelessWidget {
   }
 
   static void sendToServer(String url, dynamic json) {
-    http.post(url, headers: {'content-type': 'application/json'}, body: json);
+    http.post(Uri.parse(url), headers: {'content-type': 'application/json'}, body: json);
   }
 }

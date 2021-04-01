@@ -1,3 +1,5 @@
+
+
 class Base64Util {
   static final List<String> _base64Char = [
     "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
@@ -35,11 +37,11 @@ class Base64Util {
          */
         int code1 = _base64Char.indexOf(char1);
         int code2 = _base64Char.indexOf(char2);
-        int code3;
+        late int code3;
         if ("=" != char3) {
           code3 = _base64Char.indexOf(char3);
         }
-        int code4;
+        late int code4;
         if ("=" != char4) {
           code4 = _base64Char.indexOf(char4);
         }
@@ -65,7 +67,7 @@ class Base64Util {
          * Then the third byte and 0x3C, clear the high 2 bits and low 2 bits, and then shift 2 bits to the right,
          * Add the previous high 4 bits to get the second new byte
          */
-        int decode2;
+        int? decode2;
         if ("=" != char3) {
           decode2 = ((code2 & 0x0F) << 4) + ((code3 & 0x3C) >> 2);
         }
@@ -75,17 +77,17 @@ class Base64Util {
          * Combine the third byte with 0x03 to get the lower 2 bits, and then shift 6 bits to the left to make room for the lower 6 bits
          * Then directly add to the fourth byte to get the third new byte
          */
-        int decode3;
+        int? decode3;
         if ("=" != char4) {
           decode3 = ((code3 & 0x03) << 6) + code4;
         }
 
         list.add(decode1);
         if ("=" != char3) {
-          list.add(decode2);
+          list.add(decode2!);
         }
         if ("=" != char4) {
-          list.add(decode3);
+          list.add(decode3!);
         }
       }
     }

@@ -1,27 +1,29 @@
+
+
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
 import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
-import 'package:scidart/numdart.dart';
+//import 'package:scidart/numdart.dart';
 
 Future<ui.Image> convertToUiImage(img.Image image) async {
-  var paint = await PaintingBinding.instance.instantiateImageCodec(img.encodePng(image));
+  var paint = await PaintingBinding.instance!.instantiateImageCodec(img.encodePng(image) as Uint8List);
   final nextFrame = await paint.getNextFrame();
   return nextFrame.image;
 }
 
-img.Image convertByteListToImage(Uint8List bytes) {
+img.Image? convertByteListToImage(Uint8List bytes) {
   var decodedImage = img.decodeImage(bytes);
   return decodedImage;
 }
 
 Future<img.Image> convertImage(ui.Image inputImage) async {
-  ByteData bd = await inputImage.toByteData(format: ui.ImageByteFormat.rawRgba);
+  ByteData bd = (await (inputImage.toByteData(format: ui.ImageByteFormat.rawRgba)))!;
   img.Image image = img.Image.fromBytes(inputImage.width, inputImage.height, bd.buffer.asUint8List());
   return image;
 }
-
+/*
 
 Array2d imageToArray(img.Image src) {
   Array2d out = Array2d.fixed(src.width, src.height);
@@ -44,3 +46,4 @@ img.Image arrayToImage(Array2d src) {
   }
   return img.Image.fromBytes(src.row, src.column, bytes, format: img.Format.luminance);
 }
+*/

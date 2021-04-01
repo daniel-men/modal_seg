@@ -1,9 +1,11 @@
+
+
 import 'package:flutter/material.dart';
 
 class ButtonAppBar extends StatefulWidget {
-  final Function onChanged;
+  final Function? onChanged;
 
-  const ButtonAppBar({Key key, this.onChanged}) : super(key: key);
+  const ButtonAppBar({Key? key, this.onChanged}) : super(key: key);
 
 
   
@@ -14,7 +16,7 @@ class ButtonAppBar extends StatefulWidget {
 }
 
 class ButtonAppBarState extends State<ButtonAppBar> {
-  String dropDownValue = "Line";
+  String? dropDownValue = "Line";
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +29,8 @@ class ButtonAppBarState extends State<ButtonAppBar> {
         children: [
           DropdownButton(
             value: dropDownValue,
-            onChanged: (String newValue) {
-              widget.onChanged(newValue);
+            onChanged: (String? newValue) {
+              widget.onChanged!(newValue);
               setState(() {
                 dropDownValue = newValue;
               });              

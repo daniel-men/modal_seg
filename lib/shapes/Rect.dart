@@ -1,7 +1,10 @@
+
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:modal_seg/shapes/Shape.dart';
+import 'package:tuple/tuple.dart';
 
 class Rectangle extends Shape {
   final Rect rect;
@@ -19,5 +22,11 @@ class Rectangle extends Shape {
 
   @override
   State<StatefulWidget> createState() => ShapeState();
+
+  @override
+  Set<Tuple2<int, int>> getPointsInShape(int? originalHeight, int? originalWidth, int scaledHeight, int scaledWidth) {
+    // TODO: implement getPointsInShape
+    throw UnimplementedError();
+  }
   
 }

@@ -1,3 +1,4 @@
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -36,9 +37,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, this.title}) : super(key: key);
 
-  final String title;
+  final String? title;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -48,24 +49,24 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Offset> drawingPoints = <Offset>[];
   String drawingMode = "Line";
   List<String> selectedFiles = [];
-  ui.Image selectedImage;
-  Offset currentPosition;
-  Map<String, Shape> fileToShapeMap = {};
-  String _cursorPosition;
-  String _currentlyOpenedImage;
-  String ipAdress;
+  ui.Image? selectedImage;
+  Offset? currentPosition;
+  Map<String?, Shape> fileToShapeMap = {};
+  String? _cursorPosition;
+  String? _currentlyOpenedImage;
+  String? ipAdress;
   List<Uint8List> imagesAsBytes = [];
 
   // Drawing options
   bool _panEnabled = true;
   bool _zoomEnabled = false;
   bool _drawingEnabled = false;
-  int _value;
-  bool _closeShape = false;
+  int? _value;
+  bool? _closeShape = false;
 
   // Image properties needed for translation
-  int _originalHeight;
-  int _originalWidth;
+  int? _originalHeight;
+  int? _originalWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
             _panEnabled,
             _zoomEnabled,
             _drawingEnabled,
-            _closeShape,
+            _closeShape!,
             _updateCursorPosition,
             _onNewShape,
             drawingMode,
@@ -169,10 +170,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   PreferredSizeWidget buildAppBar() {
     Widget cursorContainer;
-    if (_cursorPosition != null) {
+    if (_cursorPosition != null && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
       cursorContainer = Container(
           margin: EdgeInsets.all(10),
-          child: Text(_cursorPosition,
+          child: Text(_cursorPosition!,
               style: TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -185,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_currentlyOpenedImage != null) {
       currentlyOpenedImageName = Padding(
           padding: EdgeInsets.all(20.0),
-          child: Text(_currentlyOpenedImage.split("\\").last));
+          child: Text(_currentlyOpenedImage!.split("\\").last));
     } else {
       currentlyOpenedImageName = Container();
     }
@@ -281,7 +282,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   Text("Close shape"),
                   Checkbox(
                       value: _closeShape,
-                      onChanged: (value) => setState(() => _closeShape = value))
+                      onChanged: (value) => setState(() => _closeShape = value == null ? false : value))
                 ],
               ),
             )
@@ -292,7 +293,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ElevatedButton(
         child: Text("Send to server"),
         onPressed: () async {
-          String url = 'http://$ipAdress:5000/server';
+          String url = 'https://$ipAdress:5000/server';
           String shapeJson = await getShapeJson();
           DataImporter.sendToServer(url, shapeJson);
         },
@@ -325,7 +326,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return showDialog(
         context: context,
         builder: (context) {
-          String valueText;
+          String? valueText;
           return AlertDialog(
             title: Text('IP Address of Server'),
             content: TextField(
@@ -351,11 +352,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<String> getShapeJson() async {
-    Map<String, String> jsonMap = {};
-    for (MapEntry<String, Shape> mapEntry in fileToShapeMap.entries) {
+    Map<String?, String> jsonMap = {};
+    for (MapEntry<String?, Shape> mapEntry in fileToShapeMap.entries) {
       
-      List<List<dynamic>> points = await snapToBlack(
-          selectedImage,
+      List<List<dynamic>?> points = await snapToBlack(
+          selectedImage!,
           mapEntry.value
               .getPointsInShape(_originalHeight, _originalWidth, 256, 256));
               

@@ -1,3 +1,5 @@
+
+
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -5,26 +7,26 @@ import 'package:modal_seg/shapes/Shape.dart';
 import 'package:tuple/tuple.dart';
 
 class Line extends Shape {
-  final List<Offset> points;
-  final Function onMoved;
-  final bool closePath;
+  final List<Offset>? points;
+  final Function? onMoved;
+  final bool? closePath;
 
   Line({this.points, this.onMoved, this.closePath}) {
-    xPosition = points.first.dx;
-    yPosition = points.first.dy;
+    xPosition = points!.first.dx;
+    yPosition = points!.first.dy;
   }
 
   @override
   paint(Canvas canvas, Paint paint) {
     Path path = Path();
 
-    for (Offset point in points) {
-      Offset pointTranslated = point - points.first;
+    for (Offset point in points!) {
+      Offset pointTranslated = point - points!.first;
       path.lineTo(pointTranslated.dx, pointTranslated.dy);
     }
 
 
-    if (this.closePath) {
+    if (this.closePath != null && this.closePath!) {
       path.close();
     }
     
@@ -35,31 +37,31 @@ class Line extends Shape {
 
   @override
   void hasBeenMoved() {
-    double deltaX = xPosition - points.first.dx;
-    double deltaY = yPosition - points.first.dy;
+    double deltaX = xPosition - points!.first.dx;
+    double deltaY = yPosition - points!.first.dy;
     List<Offset> translatedPoints = [];
-    for (Offset p in this.points) {
+    for (Offset p in this.points!) {
       translatedPoints.add(p.translate(deltaX, deltaY));
     }
-    onMoved(Line(points: translatedPoints, onMoved: onMoved));
+    onMoved!(Line(points: translatedPoints, onMoved: onMoved));
   }
 
   @override
   State<StatefulWidget> createState() => ShapeState();
 
   @override
-  Set<Tuple2<int, int>> getPointsInShape(int originalHeight, int originalWidth, int scaledHeight, int scaledWidth) {
+  Set<Tuple2<int, int>> getPointsInShape(int? originalHeight, int? originalWidth, int scaledHeight, int scaledWidth) {
     List<Offset> insidePoints = [];
-    if(closePath) {
+    if(closePath!) {
       Path path = Path();
 
-      for (Offset point in points) {
-        Offset pointTranslated = point - points.first;
+      for (Offset point in points!) {
+        Offset pointTranslated = point - points!.first;
         path.lineTo(pointTranslated.dx, pointTranslated.dy);
       }
 
       Rect boundingBox = path.getBounds();
-      boundingBox = boundingBox.translate(points.first.dx, points.first.dy);
+      boundingBox = boundingBox.translate(points!.first.dx, points!.first.dy);
 
       int i = 0;
       int j = 0;
@@ -72,14 +74,14 @@ class Line extends Shape {
           double tempY = boundingBox.topLeft.dy + j;
           Offset tempPoint = Offset(tempX, tempY);
           if (wnPnPoly(tempPoint) != 0) {
-            insidePoints.add(Offset(tempX / scaledWidth * originalWidth, tempY / scaledHeight * originalHeight));
+            insidePoints.add(Offset(tempX / scaledWidth * originalWidth!, tempY / scaledHeight * originalHeight!));
           }
           j += 1;
         }
         i += 1;
       }
     } else {
-      for (Offset p in points) {
+      for (Offset p in points!) {
         insidePoints.add(p);
         //insidePoints.add(Offset(p.dx / scaledWidth * originalWidth, p.dy / scaledHeight * originalHeight));
       }
@@ -112,18 +114,18 @@ class Line extends Shape {
   int wnPnPoly(Offset p) {
     int wn = 0;
     int i = 0;
-    int n = points.length - 1;
+    int n = points!.length - 1;
 
     while (i < n) {
-      if (points[i].dy <= p.dy) {
-        if (points[i + 1].dy > p.dy) {
-          if (_isLeft(points[i], points[i + 1], p) > 0) {
+      if (points![i].dy <= p.dy) {
+        if (points![i + 1].dy > p.dy) {
+          if (_isLeft(points![i], points![i + 1], p) > 0) {
             wn += 1;
           }
         }
       } else {
-        if (points[i + 1].dy <= p.dy) {
-          if (_isLeft(points[i], points[i + 1], p) < 0) {
+        if (points![i + 1].dy <= p.dy) {
+          if (_isLeft(points![i], points![i + 1], p) < 0) {
             wn -= 1;
           }
         }
@@ -136,8 +138,8 @@ class Line extends Shape {
 
   static List<Offset> prunePoints(List<Offset> points) {
     double minDist = double.infinity;
-    int minp1;
-    int minp2;
+    late int minp1;
+    late int minp2;
     List<Offset> reversed = points.reversed.toList();
     for (int i in Iterable<int>.generate(points.length)) {
       Offset p1 = points[i];

@@ -1,3 +1,5 @@
+
+
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -7,7 +9,7 @@ import 'package:flutter/material.dart';
 class ShapePainter extends CustomPainter {
   final List<Offset> points;
   final String mode;
-  final ui.Image image;
+  final ui.Image? image;
 
   ShapePainter(this.points, this.mode, this.image);
 
@@ -20,7 +22,7 @@ class ShapePainter extends CustomPainter {
 
     if (image != null) {
       //canvas.drawImage(image, Offset(0, 0), paint);
-      paintImage(canvas: canvas, rect: Rect.fromLTRB(0, 0, 256, 256), image: image, fit: BoxFit.scaleDown, repeat: ImageRepeat.noRepeat, scale: 1.0);
+      paintImage(canvas: canvas, rect: Rect.fromLTRB(0, 0, 256, 256), image: image!, fit: BoxFit.scaleDown, repeat: ImageRepeat.noRepeat, scale: 1.0);
     }
     drawCurrent(canvas, paint);
   }

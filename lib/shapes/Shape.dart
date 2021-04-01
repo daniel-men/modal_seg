@@ -1,15 +1,17 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:modal_seg/SelfPainter.dart';
 import 'package:tuple/tuple.dart';
 
 abstract class Shape extends StatefulWidget {
 
-  double xPosition;
-  double yPosition;
+  late double xPosition;
+  late double yPosition;
   
   paint(Canvas canvas, Paint paint);
 
-  Set<Tuple2<int, int>> getPointsInShape(int originalHeight, int originalWidth, int scaledHeight, int scaledWidth) {}
+  Set<Tuple2<int, int>> getPointsInShape(int? originalHeight, int? originalWidth, int scaledHeight, int scaledWidth);
   void hasBeenMoved() {}
 
 }

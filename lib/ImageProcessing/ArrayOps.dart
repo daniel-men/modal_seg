@@ -1,4 +1,7 @@
+
+/*
 import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
+
 import 'package:scidart/numdart.dart';
 
 enum PADDING_MODE { zeros, repeat }
@@ -10,10 +13,10 @@ Array padVector(Array src) {
   return a;
 }
 
-Array2d padArray(Array2d src,
+Array2d? padArray(Array2d src,
     {PADDING_MODE mode = PADDING_MODE.repeat,
     DIRECTION direction = DIRECTION.both}) {
-  Array2d out;
+  Array2d? out;
 
   if (direction == DIRECTION.both) {
     out = Array2d.fixed(src.row + 2, src.column + 2);
@@ -26,14 +29,12 @@ Array2d padArray(Array2d src,
 
   if (direction == DIRECTION.xDirection || direction == DIRECTION.both) {
     if (mode == PADDING_MODE.repeat) {
-      //out[0] = padVector(src.first);
-      //out[out.row - 1] = padVector(src.last);
-      out.add(src.first);    
+
+      out!.add(src.first);    
 
 
 
       for (var i = 0; i < src.row; i++) {
-        //out[i] = padVector(src[i]);
         out.add(src[i]);
       }
       out.add(src.last);
@@ -42,7 +43,7 @@ Array2d padArray(Array2d src,
   if (direction == DIRECTION.yDirection || direction == DIRECTION.both) {
     if (mode == PADDING_MODE.repeat) {
       for (var i = 0; i < src.column; i++) {
-        setColumn(out, padVector(getColumn(src, i)), i);
+        setColumn(out!, padVector(getColumn(src, i)), i);
       }
     }
   }
@@ -77,19 +78,19 @@ Array2d transpose(Array2d src) {
 }
 
 Array2d normalize(Array2d src, num low, num high) {
-  List<num> minMax = minMax2D(src);
+  List<num?> minMax = minMax2D(src);
 
-  Array2d min = Array2d.fixed(src.row, src.column, initialValue: minMax[0]);
-  Array2d max = Array2d.fixed(src.row, src.column, initialValue: minMax[1]);
+  Array2d min = Array2d.fixed(src.row, src.column, initialValue: minMax[0] as double);
+  Array2d max = Array2d.fixed(src.row, src.column, initialValue: minMax[1] as double);
   Array2d highArr = Array2d.fixed(src.row, src.column, initialValue: high.toDouble());
   Array2d lowArr = Array2d.fixed(src.row, src.column, initialValue: low.toDouble());
 
-  var out = (src - min) * ((highArr - lowArr) / (max - min)) + lowArr;
-  return out;
+  List<Array> out = (src - min) * ((highArr - lowArr) / (max - min)) + lowArr;
+  return out as Array2d;
 }
 
-num min2D(Array2d src) {
-  num newMin;
+num? min2D(Array2d src) {
+  num? newMin;
   for (var i = 1; i < src.length; i++) { 
     num minPrev = min(src[i-1]);
     num minElement = min(src[i]);
@@ -98,8 +99,8 @@ num min2D(Array2d src) {
   return newMin;
 }
 
-num max2D(Array2d src) {
-  num newMax;
+num? max2D(Array2d src) {
+  num? newMax;
   for (var i = 1; i < src.length; i++) { 
     num maxPrev = min(src[i-1]);
     num maxElement = min(src[i]);
@@ -108,9 +109,9 @@ num max2D(Array2d src) {
   return newMax;
 }
 
-List<num> minMax2D(Array2d src) {
-  num newMin;
-  num newMax;
+List<num?> minMax2D(Array2d src) {
+  num? newMin;
+  num? newMax;
   for (var i = 1; i < src.length; i++) {
     num minPrev = min(src[i-1]);
     num minElement = min(src[i]);
@@ -130,3 +131,5 @@ num min(Array src) {
 num max(Array src) {
   return src.reduce((previousValue, element) => element > previousValue ? element : previousValue);
 }
+
+*/
