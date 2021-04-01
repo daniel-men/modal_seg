@@ -310,9 +310,7 @@ class _MyHomePageState extends State<MyHomePage> {
           setState(() {
             selectedFiles = toBeAnnotated;
             fileToShapeMap.clear();
-            if (bytes != null) {
-              imagesAsBytes = bytes;
-            }
+            imagesAsBytes = bytes;
           });
         },
         currentFiles: selectedFiles,

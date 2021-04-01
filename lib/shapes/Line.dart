@@ -3,6 +3,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
 import 'package:modal_seg/shapes/Shape.dart';
 import 'package:tuple/tuple.dart';
 
@@ -11,9 +12,14 @@ class Line extends Shape {
   final Function? onMoved;
   final bool? closePath;
 
+  late final List<Offset> drawingPoints;
+
   Line({this.points, this.onMoved, this.closePath}) {
     xPosition = points!.first.dx;
     yPosition = points!.first.dy;
+
+    //drawingPoints = snapToBlack(inputImage, this.points);
+
   }
 
   @override

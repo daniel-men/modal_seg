@@ -86,11 +86,11 @@ class ViewerState extends State<Viewer> {
 
 
   Widget windowsViewer(BuildContext context) {
-
+    /*
     return FutureBuilder(future: applySobelUI(widget.selectedImage!, amount: 1),
       builder: (BuildContext context, AsyncSnapshot<ui.Image> snapshot) {
       if (snapshot.hasData) {
-
+        */
       return InteractiveViewer(
                     panEnabled: widget._panEnabled,
                     scaleEnabled: widget._zoomEnabled,
@@ -145,7 +145,7 @@ class ViewerState extends State<Viewer> {
                                   color: Color.fromARGB(0, 0, 0, 0),
                                   child: CustomPaint(
                                     painter: ShapePainter(widget.drawingPoints,
-                                        widget.drawingMode, snapshot.data),
+                                        widget.drawingMode, widget.selectedImage),
                                   )))),
                       FractionallySizedBox(
                          widthFactor: 1.0,
@@ -156,14 +156,14 @@ class ViewerState extends State<Viewer> {
                               child: Stack(children: widget.shape)))
                     ]));}
                     
-
+                  /*
                     else {
                       return Container();
                     }
                     
     });
 
-  }
+  }*/
 
   Widget iOsViewer() {
     return CustomInteractiveViewer(

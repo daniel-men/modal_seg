@@ -23,7 +23,7 @@ int getGrayPixelValue(int x, int y, img.Image image) {
 Future<List<List<dynamic>?>> snapToBlack(ui.Image inputImage, Set<Tuple2<int, int>> points) async {
   img.Image image = await convertImage(inputImage);
   image = img.copyResize(image, width: 256, height: 256);
-  image = img.gaussianBlur(image, 2);
+  image = img.gaussianBlur(image, 1);
 
   List<Tuple2<int, int>> pointsAsList = points.toList();
   List<List<dynamic>?> newPoints = [];
@@ -77,7 +77,8 @@ List<dynamic>? findDarkestPixel(List<List<dynamic>> pixels, img.Image image) {
 }
 
 List<List<dynamic>> getLowerPointNeighbours(dynamic x, dynamic y) {
-  return [[x, y+1], [x-1, y], [x+1, y], [x-1, y+1], [x+1, y+1]];
+  //return [[x, y+1], [x-1, y], [x+1, y], [x-1, y+1], [x+1, y+1]];
+  return [[x, y+1], [x-1, y+1], [x+1, y+1]];
 }
 
 bool isConnected(List<dynamic> point1, List<dynamic> point2) {
