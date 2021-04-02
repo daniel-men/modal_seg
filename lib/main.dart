@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_seg/IO.dart';
 import 'dart:ui' as ui;
 import 'package:modal_seg/widgets/DataImporter.dart';
 import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
@@ -353,12 +354,13 @@ class _MyHomePageState extends State<MyHomePage> {
     Map<String?, String> jsonMap = {};
     for (MapEntry<String?, Shape> mapEntry in fileToShapeMap.entries) {
       
+      /*
       List<List<dynamic>?> points = await snapToBlack(
           selectedImage!,
           mapEntry.value
               .getPointsInShape(_originalHeight, _originalWidth, 256, 256));
-              
-      //List<List<dynamic>> points = tupleToList(mapEntry.value.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
+      */        
+      List<List<dynamic>> points = tupleToList(mapEntry.value.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
       jsonMap[mapEntry.key] = jsonEncode(points);
     }
 

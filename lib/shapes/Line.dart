@@ -6,29 +6,41 @@ import 'package:flutter/material.dart';
 import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
 import 'package:modal_seg/shapes/Shape.dart';
 import 'package:tuple/tuple.dart';
+import 'dart:ui' as ui;
+
 
 class Line extends Shape {
   final List<Offset>? points;
   final Function? onMoved;
   final bool? closePath;
+  final ui.Image? image;
 
-  late final List<Offset> drawingPoints;
+  late final List<List<dynamic>?> drawingPoints;
 
-  Line({this.points, this.onMoved, this.closePath}) {
+  Line({this.points, this.onMoved, this.closePath, this.image}) {
     xPosition = points!.first.dx;
     yPosition = points!.first.dy;
 
-    //drawingPoints = snapToBlack(inputImage, this.points);
+    getDrawingPoints();
 
+  }
+
+  getDrawingPoints() async {
+    drawingPoints = await snapToBlack(image!, getPointsInShape(1000, 1000, 256, 256));
   }
 
   @override
   paint(Canvas canvas, Paint paint) {
     Path path = Path();
-
+    /*
     for (Offset point in points!) {
       Offset pointTranslated = point - points!.first;
       path.lineTo(pointTranslated.dx, pointTranslated.dy);
+    }
+    */
+
+    for (List<dynamic>? p in drawingPoints) {
+      path.lineTo(p![0] - xPosition, p[1]! - yPosition);
     }
 
 

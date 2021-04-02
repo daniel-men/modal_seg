@@ -27,7 +27,7 @@ Future<List<List<dynamic>?>> snapToBlack(ui.Image inputImage, Set<Tuple2<int, in
 
   List<Tuple2<int, int>> pointsAsList = points.toList();
   List<List<dynamic>?> newPoints = [];
-  List<int> offsets = [for(var i=-5; i<=5; i+=1) i];
+  List<int> offsets = [for(var i=-3; i<=3; i+=1) i];
   
 
   for (var i = 0; i < pointsAsList.length; i++) {
@@ -56,8 +56,19 @@ Future<List<List<dynamic>?>> snapToBlack(ui.Image inputImage, Set<Tuple2<int, in
 List<List<dynamic>?> correctConnectivity(List<List<dynamic>?> points, img.Image image) {
   for (var i = 1; i < points.length; i++) {
     if (!isConnected(points[i-1]!, points[i]!)) {
+      int diff = points[i]![1] - points[i-1]![1];
+      if (diff > 1) {
+        for (var j = 1; j < diff; j++) {
+          List<dynamic>? newPoint = findDarkestPixel(getLowerPointNeighbours(points[i-1]![0], points[i-1]![1]+j), image);
+          points.insert(i+j, newPoint);
+        }
+        
+      }
       List<dynamic>? newPoint = findDarkestPixel(getLowerPointNeighbours(points[i-1]![0], points[i-1]![1]), image);
       points[i] = newPoint;
+      if (i > 1) {
+        i = i+diff;
+      }
     }
   }
   return points;
@@ -92,6 +103,14 @@ bool isConnected(List<dynamic> point1, List<dynamic> point2) {
   }
 
   return false;
+}
+
+img.Image sobel(img.Image src) {
+  return img.sobel(src);
+}
+
+img.Image gaussianBlur(img.Image src) {
+  return img.gaussianBlur(src, 1);
 }
 
 Future<ui.Image> applySobel(Uint8List bytes, {num amount = 1.0}) async {

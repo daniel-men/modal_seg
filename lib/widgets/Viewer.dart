@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
+import 'package:modal_seg/ImageProcessing/ImageProcessingProvider.dart';
 import 'package:modal_seg/ShapePainter.dart';
 import 'package:modal_seg/shapes/Circle.dart';
 import 'package:modal_seg/shapes/Line.dart';
@@ -27,6 +28,8 @@ class Viewer extends StatefulWidget {
   List<Offset> drawingPoints = [];
   List<Shape> shape = [];
   final ui.Image? selectedImage;
+  ImageProcessingProvider? imageProcessingProvider;
+  
 
   Viewer(this._panEnabled, this._zoomEnabled, this._drawingEnabled,  this._closeShape,
    this._updateCursorPosition, this._onNewShape, this.drawingMode, this.selectedImage, Shape? shape) {
@@ -38,9 +41,13 @@ class Viewer extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => ViewerState();
 
+ 
+    
+
 }
 
 class ViewerState extends State<Viewer> {
+
 
   void convertPointsToShape() {
     switch (widget.drawingMode) {
@@ -54,7 +61,7 @@ class ViewerState extends State<Viewer> {
         if (widget._closeShape) {
                   widget.drawingPoints = Line.prunePoints(widget.drawingPoints);
         }
-        widget._onNewShape(Line(points: List.from(widget.drawingPoints), onMoved: widget._onNewShape, closePath: widget._closeShape));
+        widget._onNewShape(Line(points: List.from(widget.drawingPoints), onMoved: widget._onNewShape, closePath: widget._closeShape, image: widget.selectedImage));
         break;
       case "Rect":
         double radius = sqrt(
@@ -87,10 +94,10 @@ class ViewerState extends State<Viewer> {
 
   Widget windowsViewer(BuildContext context) {
     /*
-    return FutureBuilder(future: applySobelUI(widget.selectedImage!, amount: 1),
+    return FutureBuilder(future: applySobelUI(widget.selectedImage!),
       builder: (BuildContext context, AsyncSnapshot<ui.Image> snapshot) {
       if (snapshot.hasData) {
-        */
+       */ 
       return InteractiveViewer(
                     panEnabled: widget._panEnabled,
                     scaleEnabled: widget._zoomEnabled,
@@ -164,6 +171,7 @@ class ViewerState extends State<Viewer> {
     });
 
   }*/
+  
 
   Widget iOsViewer() {
     return CustomInteractiveViewer(
