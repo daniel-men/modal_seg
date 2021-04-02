@@ -156,7 +156,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // Set new image
     setState(() {
+      if (selectedFiles.indexOf(_currentlyOpenedImage!) == selectedFiles.indexOf(filename) - 1 && fileToShapeMap.containsKey(_currentlyOpenedImage!)) {
+        fileToShapeMap[filename] = fileToShapeMap[_currentlyOpenedImage]!;
+      }
       _currentlyOpenedImage = filename;
+      
+      
       //shapes = [];
     });
     loadImage(filename);

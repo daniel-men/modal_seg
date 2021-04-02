@@ -21,7 +21,7 @@ class Line extends Shape {
     xPosition = points!.first.dx;
     yPosition = points!.first.dy;
 
-    getDrawingPoints();
+    //getDrawingPoints();
 
   }
 
@@ -32,17 +32,17 @@ class Line extends Shape {
   @override
   paint(Canvas canvas, Paint paint) {
     Path path = Path();
-    /*
+    
     for (Offset point in points!) {
       Offset pointTranslated = point - points!.first;
       path.lineTo(pointTranslated.dx, pointTranslated.dy);
     }
-    */
-
+    
+    /*
     for (List<dynamic>? p in drawingPoints) {
       path.lineTo(p![0] - xPosition, p[1]! - yPosition);
     }
-
+    */
 
     if (this.closePath != null && this.closePath!) {
       path.close();

@@ -25,6 +25,7 @@ Future<List<List<dynamic>?>> snapToBlack(ui.Image inputImage, Set<Tuple2<int, in
   image = img.copyResize(image, width: 256, height: 256);
   image = img.gaussianBlur(image, 1);
 
+
   List<Tuple2<int, int>> pointsAsList = points.toList();
   List<List<dynamic>?> newPoints = [];
   List<int> offsets = [for(var i=-3; i<=3; i+=1) i];
@@ -51,6 +52,14 @@ Future<List<List<dynamic>?>> snapToBlack(ui.Image inputImage, Set<Tuple2<int, in
 
   //return newPoints;
   return correctConnectivity(newPoints, image);
+}
+
+douglasPeucker(List<List<dynamic>> points) {
+  var dmax = 0;
+  var index = 0;
+  for (var i = 2; i < points.length-1; i++) {
+    
+  }
 }
 
 List<List<dynamic>?> correctConnectivity(List<List<dynamic>?> points, img.Image image) {
