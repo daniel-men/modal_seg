@@ -13,17 +13,25 @@ class Line extends Shape {
   final List<Offset>? points;
   final Function? onMoved;
   final bool? closePath;
+  late final int timestamp;
   final ui.Image? image;
 
   late final List<List<dynamic>?> drawingPoints;
 
-  Line({this.points, this.onMoved, this.closePath, this.image}) {
+  Line({this.points, this.onMoved, this.closePath, this.image, int? givenTimestamp}) {
     xPosition = points!.first.dx;
     yPosition = points!.first.dy;
 
+    if (givenTimestamp == null) {
+      timestamp = createTimeStamp();
+    } else {
+      this.timestamp = givenTimestamp;
+    }
+    
     //getDrawingPoints();
 
   }
+
 
   getDrawingPoints() async {
     drawingPoints = await snapToBlack(image!, getPointsInShape(1000, 1000, 256, 256));
@@ -61,7 +69,7 @@ class Line extends Shape {
     for (Offset p in this.points!) {
       translatedPoints.add(p.translate(deltaX, deltaY));
     }
-    onMoved!(Line(points: translatedPoints, onMoved: onMoved));
+    onMoved!(Line(points: translatedPoints, onMoved: onMoved, givenTimestamp: timestamp));
   }
 
   @override

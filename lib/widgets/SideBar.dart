@@ -8,7 +8,7 @@ import 'package:modal_seg/widgets/FileCardListView.dart';
 class SideBar extends StatefulWidget {
   final List<String>? elements;
   final Function? onTap;
-  final Map<String?, Shape>? fileToShapeMap;
+  final Map<String?, List<Shape>>? fileToShapeMap;
   final String? currentlyOpened;
 
 

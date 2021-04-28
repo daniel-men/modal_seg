@@ -8,15 +8,19 @@ abstract class Shape extends StatefulWidget {
 
   late double xPosition;
   late double yPosition;
+  late int timestamp;
   
   paint(Canvas canvas, Paint paint);
 
   Set<Tuple2<int, int>> getPointsInShape(int? originalHeight, int? originalWidth, int scaledHeight, int scaledWidth);
   void hasBeenMoved() {}
+  int createTimeStamp() => DateTime.now().millisecondsSinceEpoch;
 
 }
 
 class ShapeState extends State<Shape> {
+
+  
 
   paint(Canvas canvas, Paint paint) {
     widget.paint(canvas, paint);

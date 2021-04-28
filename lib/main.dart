@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:modal_seg/IO.dart';
 import 'dart:ui' as ui;
 import 'package:modal_seg/widgets/DataImporter.dart';
-import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
 
 import 'package:modal_seg/widgets/DropDownAppBar.dart';
 import 'package:modal_seg/widgets/SideBar.dart';
@@ -52,9 +51,9 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> selectedFiles = [];
   ui.Image? selectedImage;
   Offset? currentPosition;
-  Map<String?, Shape> fileToShapeMap = {};
+  Map<String?, List<Shape>> fileToShapeMap = {};
   String? _cursorPosition;
-  String? _currentlyOpenedImage;
+  String? _currentlyOpenedImage = "";
   String? ipAdress;
   List<Uint8List> imagesAsBytes = [];
 
@@ -125,7 +124,22 @@ class _MyHomePageState extends State<MyHomePage> {
   void _onNewShape(Shape shape) {
     setState(() {
       //shapes = List.from(shapes)..add(shape);
-      fileToShapeMap[_currentlyOpenedImage] = shape;
+      if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
+        List<Shape> shapes = fileToShapeMap[_currentlyOpenedImage]!;
+        bool found = false;
+        for (Shape s in shapes) {
+          if (shape.timestamp == s.timestamp) {
+            int index = fileToShapeMap[_currentlyOpenedImage]!.indexOf(s);
+            fileToShapeMap[_currentlyOpenedImage]![index] = shape;
+            found = true;
+          } 
+        }
+        if (!found) {
+          fileToShapeMap[_currentlyOpenedImage]!.add(shape);
+        }
+      } else {
+      fileToShapeMap[_currentlyOpenedImage] = [shape];
+      }
     });
   }
 
@@ -149,29 +163,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> changeSelectedImage(String filename) async {
-    // Save existing shape
-    //if (shapes.isNotEmpty && _currentlyOpenedImage != null) {
-    //  fileToShapeMap[_currentlyOpenedImage] = shape;
-    //}
 
     // Set new image
     setState(() {
-      if (selectedFiles.indexOf(_currentlyOpenedImage!) == selectedFiles.indexOf(filename) - 1 && fileToShapeMap.containsKey(_currentlyOpenedImage!)) {
-        fileToShapeMap[filename] = fileToShapeMap[_currentlyOpenedImage]!;
+      if (_currentlyOpenedImage != null) {
+        if (selectedFiles.indexOf(_currentlyOpenedImage!) == selectedFiles.indexOf(filename) - 1 && fileToShapeMap.containsKey(_currentlyOpenedImage!)) {
+          fileToShapeMap[filename] = fileToShapeMap[_currentlyOpenedImage]!;
+        }
       }
-      _currentlyOpenedImage = filename;
+      _currentlyOpenedImage = filename;      
       
-      
-      //shapes = [];
     });
     loadImage(filename);
 
-    // Check if shapes already exist for this image
-    //if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
-    //  setState(() {
-    //    shapes = List.from(shapes)..add(fileToShapeMap[_currentlyOpenedImage]);
-    //  });
-    //}
   }
 
   PreferredSizeWidget buildAppBar() {
@@ -357,15 +361,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<String> getShapeJson() async {
     Map<String?, String> jsonMap = {};
-    for (MapEntry<String?, Shape> mapEntry in fileToShapeMap.entries) {
+    for (MapEntry<String?, List<Shape>> mapEntry in fileToShapeMap.entries) {
       
       /*
       List<List<dynamic>?> points = await snapToBlack(
           selectedImage!,
           mapEntry.value
               .getPointsInShape(_originalHeight, _originalWidth, 256, 256));
-      */        
-      List<List<dynamic>> points = tupleToList(mapEntry.value.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
+      */
+      List<dynamic> points = [];
+      for (Shape shape in mapEntry.value) {
+        List<List<dynamic>> shapePoints = tupleToList(shape.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
+        points.add(shapePoints);
+      }     
+      //List<List<dynamic>> points = tupleToList(mapEntry.value.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
       jsonMap[mapEntry.key] = jsonEncode(points);
     }
 
