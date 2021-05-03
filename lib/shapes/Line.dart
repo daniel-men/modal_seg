@@ -183,4 +183,10 @@ class Line extends Shape {
     }
     return points.sublist(minp1, points.length - minp2);
   }
+
+  @override
+  Shape copy() {
+    return Line(points: points, onMoved: onMoved, givenTimestamp: timestamp, onDelete: onDelete, imageName: imageName, index: index)
+    ..strokeWidth = strokeWidth;
+  }
 }

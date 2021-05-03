@@ -9,7 +9,7 @@ abstract class Shape extends StatefulWidget {
   late double xPosition;
   late double yPosition;
   late int timestamp;
-  late double strokeWidth;
+  late double strokeWidth = 1.0;
   late final String imageName;
   late int index;
   late final Function onDelete;
@@ -19,6 +19,7 @@ abstract class Shape extends StatefulWidget {
   Set<Tuple2<int, int>> getPointsInShape(int? originalHeight, int? originalWidth, int scaledHeight, int scaledWidth);
   void hasBeenMoved() {}
   int createTimeStamp() => DateTime.now().millisecondsSinceEpoch;
+  Shape copy();
 
 }
 

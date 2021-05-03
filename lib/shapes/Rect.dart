@@ -28,5 +28,11 @@ class Rectangle extends Shape {
     // TODO: implement getPointsInShape
     throw UnimplementedError();
   }
+
+  @override
+  Shape copy() {
+    // TODO: implement copy
+    throw UnimplementedError();
+  }
   
 }

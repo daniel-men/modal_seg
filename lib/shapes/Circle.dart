@@ -29,4 +29,10 @@ class Circle extends Shape {
     throw UnimplementedError();
   }
 
+  @override
+  Shape copy() {
+    // TODO: implement copy
+    throw UnimplementedError();
+  }
+
 }

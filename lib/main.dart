@@ -166,11 +166,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _onDeleteSingleShape(String imageName, int index) {
-    if (fileToShapeMap.containsKey(imageName)) {
-      List<Shape> shapes = fileToShapeMap[imageName]!;
+    if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
+      List<Shape> shapes = fileToShapeMap[_currentlyOpenedImage]!;
       if (shapes.length == 1) {
         setState(() {
-          fileToShapeMap.remove(imageName);
+          fileToShapeMap.remove(_currentlyOpenedImage);
         });
       } else {
         if (index == shapes.length - 1) {
@@ -187,7 +187,7 @@ class _MyHomePageState extends State<MyHomePage> {
           
         }
         setState(() {
-            fileToShapeMap[imageName] = shapes;
+            fileToShapeMap[_currentlyOpenedImage] = shapes;
           });
       }
     }
@@ -219,7 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
         if (selectedFiles.indexOf(_currentlyOpenedImage!) ==
                 selectedFiles.indexOf(filename) - 1 &&
             fileToShapeMap.containsKey(_currentlyOpenedImage!)) {
-          fileToShapeMap[filename] = fileToShapeMap[_currentlyOpenedImage]!;
+          fileToShapeMap[filename] = fileToShapeMap[_currentlyOpenedImage]!.map((s) => s.copy()).toList();
         }
       }
       _currentlyOpenedImage = filename;
