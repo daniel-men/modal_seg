@@ -10,14 +10,15 @@ class ShapePainter extends CustomPainter {
   final List<Offset> points;
   final String mode;
   final ui.Image? image;
+  final double strokeWidth;
 
-  ShapePainter(this.points, this.mode, this.image);
+  ShapePainter(this.points, this.mode, this.image, this.strokeWidth);
 
   void paint(Canvas canvas, Size size) {
     Paint paint = new Paint()
       ..color = Colors.blue
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 1.0
+      ..strokeWidth = strokeWidth
       ..style = PaintingStyle.stroke;
 
     if (image != null) {

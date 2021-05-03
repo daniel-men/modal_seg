@@ -12,6 +12,7 @@ import 'package:modal_seg/widgets/DataImporter.dart';
 import 'package:modal_seg/widgets/DropDownAppBar.dart';
 import 'package:modal_seg/widgets/SideBar.dart';
 import 'package:modal_seg/widgets/ToolMenu.dart';
+import 'package:modal_seg/widgets/ToolSelectionWindow.dart';
 import 'package:modal_seg/widgets/Viewer.dart';
 
 import 'shapes/Shape.dart';
@@ -61,12 +62,16 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _panEnabled = true;
   bool _zoomEnabled = false;
   bool _drawingEnabled = false;
+
   int? _value;
   bool? _closeShape = false;
+  double? _strokeWidth = 2.0;
+  bool? _straightLine = false;
 
   // Image properties needed for translation
   int? _originalHeight;
   int? _originalWidth;
+
 
   @override
   Widget build(BuildContext context) {
@@ -87,6 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
             _zoomEnabled,
             _drawingEnabled,
             _closeShape!,
+            _strokeWidth!,
             _updateCursorPosition,
             _onNewShape,
             drawingMode,
@@ -124,6 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _onNewShape(Shape shape) {
     setState(() {
       //shapes = List.from(shapes)..add(shape);
+      shape.strokeWidth = _strokeWidth == null ? 1.0 : _strokeWidth!;
       if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
         List<Shape> shapes = fileToShapeMap[_currentlyOpenedImage]!;
         bool found = false;
@@ -218,11 +225,14 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.folder),
             label: Text("Open files"),
           )),*/
+      ElevatedButton(onPressed: () => openToolMenu(context), child: Text("Open Tool menu")),
+      /*
       ToolMenu(onChanged: (value) {
         setState(() {
           drawingMode = value;
         });
       }),
+      */
       /*
       ElevatedButton(
         child: Text("Save to file"),
@@ -357,6 +367,43 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           );
         });
+  }
+  
+  Future<void> openToolMenu(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Tool Menu"),
+          content: ToolSelectionWindow(
+            closeShape: _closeShape,
+            onShapeClosed: (value) => {
+              setState(() {
+                _closeShape = value == null ? false : value;
+              })
+            },
+            strokeWidth: _strokeWidth,
+            onStrokeWidthChanged: (value) => {
+              setState(() {
+                _strokeWidth = value;
+              })
+            },
+            straightLine: _straightLine,
+            onStraightLineChanged: (value) => {
+              setState(() {
+                _straightLine = value;
+              })
+            },
+            onDrawingModeChanged: (mode) => {
+              setState(() {
+                drawingMode = mode;
+              })
+            }),
+        );
+      }
+    
+    );
+
   }
 
   Future<String> getShapeJson() async {

@@ -9,6 +9,7 @@ abstract class Shape extends StatefulWidget {
   late double xPosition;
   late double yPosition;
   late int timestamp;
+  late double strokeWidth;
   
   paint(Canvas canvas, Paint paint);
 

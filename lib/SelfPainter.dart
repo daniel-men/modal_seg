@@ -15,7 +15,7 @@ class SelfPainter extends CustomPainter {
       Paint paint = new Paint()
       ..color = Colors.blue
       ..strokeCap = StrokeCap.round
-      ..strokeWidth = 1.0
+      ..strokeWidth = shape.widget.strokeWidth
       ..style = PaintingStyle.stroke;
       shape.paint(canvas, paint);
     }

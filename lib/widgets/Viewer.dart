@@ -18,6 +18,7 @@ class Viewer extends StatefulWidget {
   final bool _zoomEnabled;
   final bool _drawingEnabled;
   final bool _closeShape;
+  final double _strokeWidth;
   final Function _updateCursorPosition;
   final Function _onNewShape;
   final String drawingMode;
@@ -31,6 +32,7 @@ class Viewer extends StatefulWidget {
       this._zoomEnabled,
       this._drawingEnabled,
       this._closeShape,
+      this._strokeWidth,
       this._updateCursorPosition,
       this._onNewShape,
       this.drawingMode,
@@ -154,7 +156,7 @@ class ViewerState extends State<Viewer> {
                       color: Color.fromARGB(0, 0, 0, 0),
                       child: CustomPaint(
                         painter: ShapePainter(widget.drawingPoints,
-                            widget.drawingMode, widget.selectedImage),
+                            widget.drawingMode, widget.selectedImage, widget._strokeWidth),
                       )))),
           FractionallySizedBox(
               widthFactor: 1.0,
@@ -206,7 +208,7 @@ class ViewerState extends State<Viewer> {
                     color: Color.fromARGB(0, 0, 0, 0),
                     child: CustomPaint(
                       painter: ShapePainter(widget.drawingPoints,
-                          widget.drawingMode, widget.selectedImage),
+                          widget.drawingMode, widget.selectedImage, widget._strokeWidth),
                     ))),
             FractionallySizedBox(
                 widthFactor: 1.0,

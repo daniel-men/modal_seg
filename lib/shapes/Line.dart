@@ -39,6 +39,7 @@ class Line extends Shape {
 
   @override
   paint(Canvas canvas, Paint paint) {
+    paint.strokeWidth = strokeWidth;
     Path path = Path();
     
     for (Offset point in points!) {
@@ -109,7 +110,7 @@ class Line extends Shape {
     } else {
       for (Offset p in points!) {
         insidePoints.add(p);
-        //insidePoints.add(Offset(p.dx / scaledWidth * originalWidth, p.dy / scaledHeight * originalHeight));
+        //insidePoints.add(Offset(p.dx / scaledWidth * originalWidth!, p.dy / scaledHeight * originalHeight!));
       }
     }
 
