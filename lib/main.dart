@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -72,7 +71,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int? _originalHeight;
   int? _originalWidth;
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +95,10 @@ class _MyHomePageState extends State<MyHomePage> {
             _onNewShape,
             drawingMode,
             selectedImage,
-            fileToShapeMap[_currentlyOpenedImage])
+            fileToShapeMap[_currentlyOpenedImage],
+            currentImage: _currentlyOpenedImage!,
+            fileToShapeMap: fileToShapeMap,
+            onDelete: _onDeleteSingleShape)
       ]),
       floatingActionButton: buildFAB(),
     );
@@ -106,29 +107,30 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget buildFAB() {
     return Stack(children: [
       Align(
-    alignment: Alignment.bottomRight,
-    child: FloatingActionButton(
-      backgroundColor: Colors.red,
-      child: Icon(Icons.refresh),
-      tooltip: 'Clear Screen',
-      onPressed: () {
-        setState(() {
-          drawingPoints.clear();
-          //shapes.clear();
-          fileToShapeMap.remove(_currentlyOpenedImage);
-        });
-      },
-    )),
-    Align(
-    alignment: Alignment.bottomCenter,
-    child: FloatingActionButton(
-        backgroundColor: Colors.red,
-        child: Icon(Icons.close),
-        onPressed: () {
-          setState(() {
-            fileToShapeMap[_currentlyOpenedImage] = [];
-          });
-        }))]);
+          alignment: Alignment.bottomRight,
+          child: FloatingActionButton(
+            backgroundColor: Colors.red,
+            child: Icon(Icons.refresh),
+            tooltip: 'Clear Screen',
+            onPressed: () {
+              setState(() {
+                drawingPoints.clear();
+                //shapes.clear();
+                fileToShapeMap.remove(_currentlyOpenedImage);
+              });
+            },
+          )),
+      Align(
+          alignment: Alignment.bottomCenter,
+          child: FloatingActionButton(
+              backgroundColor: Colors.red,
+              child: Icon(Icons.close),
+              onPressed: () {
+                setState(() {
+                  fileToShapeMap[_currentlyOpenedImage] = [];
+                });
+              }))
+    ]);
   }
 
   void _updateCursorPosition(PointerHoverEvent event) {
@@ -158,9 +160,37 @@ class _MyHomePageState extends State<MyHomePage> {
           fileToShapeMap[_currentlyOpenedImage]!.add(shape);
         }
       } else {
-      fileToShapeMap[_currentlyOpenedImage] = [shape];
+        fileToShapeMap[_currentlyOpenedImage] = [shape];
       }
     });
+  }
+
+  void _onDeleteSingleShape(String imageName, int index) {
+    if (fileToShapeMap.containsKey(imageName)) {
+      List<Shape> shapes = fileToShapeMap[imageName]!;
+      if (shapes.length == 1) {
+        setState(() {
+          fileToShapeMap.remove(imageName);
+        });
+      } else {
+        if (index == shapes.length - 1) {
+          shapes.removeAt(index);
+         
+        }
+        else {
+          for (Shape s in shapes) {
+            if (s.index > index) {
+              s.index -= 1;
+            }
+          }
+          shapes.removeAt(index);
+          
+        }
+        setState(() {
+            fileToShapeMap[imageName] = shapes;
+          });
+      }
+    }
   }
 
   Future<void> loadImage(String filename) async {
@@ -183,24 +213,24 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> changeSelectedImage(String filename) async {
-
     // Set new image
     setState(() {
       if (_currentlyOpenedImage != null) {
-        if (selectedFiles.indexOf(_currentlyOpenedImage!) == selectedFiles.indexOf(filename) - 1 && fileToShapeMap.containsKey(_currentlyOpenedImage!)) {
+        if (selectedFiles.indexOf(_currentlyOpenedImage!) ==
+                selectedFiles.indexOf(filename) - 1 &&
+            fileToShapeMap.containsKey(_currentlyOpenedImage!)) {
           fileToShapeMap[filename] = fileToShapeMap[_currentlyOpenedImage]!;
         }
       }
       _currentlyOpenedImage = filename;
-
     });
     loadImage(filename);
-
   }
 
   PreferredSizeWidget buildAppBar() {
     Widget cursorContainer;
-    if (_cursorPosition != null && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
+    if (_cursorPosition != null &&
+        (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
       cursorContainer = Container(
           margin: EdgeInsets.all(10),
           child: Text(_cursorPosition!,
@@ -238,7 +268,9 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.folder),
             label: Text("Open files"),
           )),*/
-      ElevatedButton(onPressed: () => openToolMenu(context), child: Text("Open Tool menu")),
+      ElevatedButton(
+          onPressed: () => openToolMenu(context),
+          child: Text("Open Tool menu")),
       /*
       ToolMenu(onChanged: (value) {
         setState(() {
@@ -315,7 +347,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   Text("Close shape"),
                   Checkbox(
                       value: _closeShape,
-                      onChanged: (value) => setState(() => _closeShape = value == null ? false : value))
+                      onChanged: (value) => setState(
+                          () => _closeShape = value == null ? false : value))
                 ],
               ),
             )
@@ -380,48 +413,44 @@ class _MyHomePageState extends State<MyHomePage> {
           );
         });
   }
-  
+
   Future<void> openToolMenu(BuildContext context) {
     return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Tool Menu"),
-          content: ToolSelectionWindow(
-            closeShape: _closeShape,
-            onShapeClosed: (value) => {
-              setState(() {
-                _closeShape = value == null ? false : value;
-              })
-            },
-            strokeWidth: _strokeWidth,
-            onStrokeWidthChanged: (value) => {
-              setState(() {
-                _strokeWidth = value;
-              })
-            },
-            straightLine: _straightLine,
-            onStraightLineChanged: (value) => {
-              setState(() {
-                _straightLine = value;
-              })
-            },
-            onDrawingModeChanged: (mode) => {
-              setState(() {
-                drawingMode = mode;
-              })
-            }),
-        );
-      }
-    
-    );
-
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Tool Menu"),
+            content: ToolSelectionWindow(
+                closeShape: _closeShape,
+                onShapeClosed: (value) => {
+                      setState(() {
+                        _closeShape = value == null ? false : value;
+                      })
+                    },
+                strokeWidth: _strokeWidth,
+                onStrokeWidthChanged: (value) => {
+                      setState(() {
+                        _strokeWidth = value;
+                      })
+                    },
+                straightLine: _straightLine,
+                onStraightLineChanged: (value) => {
+                      setState(() {
+                        _straightLine = value;
+                      })
+                    },
+                onDrawingModeChanged: (mode) => {
+                      setState(() {
+                        drawingMode = mode;
+                      })
+                    }),
+          );
+        });
   }
 
   Future<String> getShapeJson() async {
     Map<String?, String> jsonMap = {};
     for (MapEntry<String?, List<Shape>> mapEntry in fileToShapeMap.entries) {
-      
       /*
       List<List<dynamic>?> points = await snapToBlack(
           selectedImage!,
@@ -430,7 +459,8 @@ class _MyHomePageState extends State<MyHomePage> {
       */
       List<dynamic> points = [];
       for (Shape shape in mapEntry.value) {
-        List<List<dynamic>> shapePoints = tupleToList(shape.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
+        List<List<dynamic>> shapePoints = tupleToList(
+            shape.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
         points.add(shapePoints);
       }
       //List<List<dynamic>> points = tupleToList(mapEntry.value.getPointsInShape(_originalHeight, _originalWidth, 256, 256));

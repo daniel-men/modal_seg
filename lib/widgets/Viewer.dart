@@ -26,6 +26,9 @@ class Viewer extends StatefulWidget {
   final List<Shape>? shape;
   final ui.Image? selectedImage;
   ImageProcessingProvider? imageProcessingProvider;
+  late Map<String?, List<Shape>> fileToShapeMap;
+  late String currentImage;
+  late Function onDelete;
 
   Viewer(
       this._panEnabled,
@@ -37,10 +40,14 @@ class Viewer extends StatefulWidget {
       this._onNewShape,
       this.drawingMode,
       this.selectedImage,
-      this.shape) {
-    //if (shape != null) {
-    //  this.shape.add(shape);
-    //}
+      this.shape, {
+        required Map<String?, List<Shape>> fileToShapeMap,
+        required String currentImage,
+        required Function onDelete
+      }) {
+    this.fileToShapeMap = fileToShapeMap;
+    this.currentImage = currentImage;
+    this.onDelete = onDelete;
   }
 
   @override
@@ -63,11 +70,18 @@ class ViewerState extends State<Viewer> {
         if (widget._closeShape) {
           widget.drawingPoints = Line.prunePoints(widget.drawingPoints);
         }
+        int index = 0;
+        if (widget.fileToShapeMap.containsKey(widget.currentImage)) {
+          index =  widget.fileToShapeMap[widget.currentImage]!.length;
+        }
         widget._onNewShape(Line(
             points: List.from(widget.drawingPoints),
             onMoved: widget._onNewShape,
             closePath: widget._closeShape,
-            image: widget.selectedImage));
+            imageName: widget.currentImage,
+            index: index,
+            onDelete: widget.onDelete
+            ));
         break;
       case "Rect":
         double radius = sqrt(pow(

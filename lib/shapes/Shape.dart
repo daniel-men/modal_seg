@@ -10,6 +10,9 @@ abstract class Shape extends StatefulWidget {
   late double yPosition;
   late int timestamp;
   late double strokeWidth;
+  late final String imageName;
+  late int index;
+  late final Function onDelete;
   
   paint(Canvas canvas, Paint paint);
 
@@ -48,12 +51,15 @@ class ShapeState extends State<Shape> {
           child: CustomPaint(
             painter: SelfPainter(this),
             child: Container(              
-              width: 100,
-              height: 100,
+              width: 50,
+              height: 50,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color.fromARGB(10, 20, 20, 0),
+                color: Color.fromARGB(50, 255, 0, 0),
               ),
+              child: IconButton(
+                icon: Icon(Icons.delete, color: Colors.white30),
+                onPressed: () => widget.onDelete(widget.imageName, widget.index)),
             ),
         )),
       ),

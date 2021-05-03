@@ -3,10 +3,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
 import 'package:modal_seg/shapes/Shape.dart';
 import 'package:tuple/tuple.dart';
-import 'dart:ui' as ui;
 
 
 class Line extends Shape {
@@ -14,11 +12,10 @@ class Line extends Shape {
   final Function? onMoved;
   final bool? closePath;
   late final int timestamp;
-  final ui.Image? image;
 
   late final List<List<dynamic>?> drawingPoints;
 
-  Line({this.points, this.onMoved, this.closePath, this.image, int? givenTimestamp}) {
+  Line({this.points, this.onMoved, this.closePath, required Function onDelete, required String imageName, required int index, int? givenTimestamp}) {
     if (points != null) {
       xPosition = points!.first.dx;
       yPosition = points!.first.dy;
@@ -29,15 +26,17 @@ class Line extends Shape {
     } else {
       this.timestamp = givenTimestamp;
     }
+
+    this.imageName = imageName;
+    this.index = index;
+
+    this.onDelete = onDelete;
     
     //getDrawingPoints();
 
   }
 
 
-  getDrawingPoints() async {
-    drawingPoints = await snapToBlack(image!, getPointsInShape(1000, 1000, 256, 256));
-  }
 
   @override
   paint(Canvas canvas, Paint paint) {
@@ -72,7 +71,7 @@ class Line extends Shape {
     for (Offset p in this.points!) {
       translatedPoints.add(p.translate(deltaX, deltaY));
     }
-    onMoved!(Line(points: translatedPoints, onMoved: onMoved, givenTimestamp: timestamp));
+    onMoved!(Line(points: translatedPoints, onMoved: onMoved, givenTimestamp: timestamp, onDelete: onDelete, imageName: imageName, index: index));
   }
 
   @override
