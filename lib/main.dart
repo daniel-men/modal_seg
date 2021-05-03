@@ -103,8 +103,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  FloatingActionButton buildFAB() {
-    return FloatingActionButton(
+  Widget buildFAB() {
+    return Stack(children: [
+      Align(
+    alignment: Alignment.bottomRight,
+    child: FloatingActionButton(
       backgroundColor: Colors.red,
       child: Icon(Icons.refresh),
       tooltip: 'Clear Screen',
@@ -115,7 +118,17 @@ class _MyHomePageState extends State<MyHomePage> {
           fileToShapeMap.remove(_currentlyOpenedImage);
         });
       },
-    );
+    )),
+    Align(
+    alignment: Alignment.bottomCenter,
+    child: FloatingActionButton(
+        backgroundColor: Colors.red,
+        child: Icon(Icons.close),
+        onPressed: () {
+          setState(() {
+            fileToShapeMap[_currentlyOpenedImage] = [];
+          });
+        }))]);
   }
 
   void _updateCursorPosition(PointerHoverEvent event) {
@@ -139,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
             int index = fileToShapeMap[_currentlyOpenedImage]!.indexOf(s);
             fileToShapeMap[_currentlyOpenedImage]![index] = shape;
             found = true;
-          } 
+          }
         }
         if (!found) {
           fileToShapeMap[_currentlyOpenedImage]!.add(shape);
@@ -178,8 +191,8 @@ class _MyHomePageState extends State<MyHomePage> {
           fileToShapeMap[filename] = fileToShapeMap[_currentlyOpenedImage]!;
         }
       }
-      _currentlyOpenedImage = filename;      
-      
+      _currentlyOpenedImage = filename;
+
     });
     loadImage(filename);
 
@@ -313,7 +326,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ElevatedButton(
         child: Text("Send to server"),
         onPressed: () async {
-          
           String shapeJson = await getShapeJson();
           DataImporter.sendToServer(ipAdress, shapeJson);
         },
@@ -420,7 +432,7 @@ class _MyHomePageState extends State<MyHomePage> {
       for (Shape shape in mapEntry.value) {
         List<List<dynamic>> shapePoints = tupleToList(shape.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
         points.add(shapePoints);
-      }     
+      }
       //List<List<dynamic>> points = tupleToList(mapEntry.value.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
       jsonMap[mapEntry.key] = jsonEncode(points);
     }

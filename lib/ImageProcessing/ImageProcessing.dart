@@ -51,7 +51,7 @@ Future<List<List<dynamic>?>> snapToBlack(ui.Image inputImage, Set<Tuple2<int, in
 
 
   //return newPoints;
-  return correctConnectivity(newPoints, image);
+   return correctConnectivity(newPoints, image);
 }
 
 douglasPeucker(List<List<dynamic>> points) {

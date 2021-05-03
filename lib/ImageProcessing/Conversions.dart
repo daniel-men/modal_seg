@@ -4,8 +4,6 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as img;
-import 'package:modal_seg/ImageProcessing/ImageProcessing.dart';
-//import 'package:scidart/numdart.dart';
 
 Future<ui.Image> convertToUiImage(img.Image image) async {
   var paint = await PaintingBinding.instance!.instantiateImageCodec(img.encodePng(image) as Uint8List);
