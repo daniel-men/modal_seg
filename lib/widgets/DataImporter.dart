@@ -37,7 +37,7 @@ class DataImporter extends StatelessWidget {
         http.Response response = await http.get(Uri.parse(url));
         var decodedResponse = jsonDecode(response.body);
         return decodedResponse;
-      } catch (SocketException) {
+      } catch (e) {
         //print(e.toString());
         return Map();
       }

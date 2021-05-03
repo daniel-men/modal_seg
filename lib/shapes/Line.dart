@@ -19,8 +19,10 @@ class Line extends Shape {
   late final List<List<dynamic>?> drawingPoints;
 
   Line({this.points, this.onMoved, this.closePath, this.image, int? givenTimestamp}) {
-    xPosition = points!.first.dx;
-    yPosition = points!.first.dy;
+    if (points != null) {
+      xPosition = points!.first.dx;
+      yPosition = points!.first.dy;
+    }
 
     if (givenTimestamp == null) {
       timestamp = createTimeStamp();
@@ -40,12 +42,12 @@ class Line extends Shape {
   @override
   paint(Canvas canvas, Paint paint) {
     Path path = Path();
-    
+
     for (Offset point in points!) {
       Offset pointTranslated = point - points!.first;
       path.lineTo(pointTranslated.dx, pointTranslated.dy);
     }
-    
+
     /*
     for (List<dynamic>? p in drawingPoints) {
       path.lineTo(p![0] - xPosition, p[1]! - yPosition);
@@ -78,7 +80,7 @@ class Line extends Shape {
   @override
   Set<Tuple2<int, int>> getPointsInShape(int? originalHeight, int? originalWidth, int scaledHeight, int scaledWidth) {
     List<Offset> insidePoints = [];
-    if(closePath!) {
+    if(closePath != null && closePath!) {
       Path path = Path();
 
       for (Offset point in points!) {
@@ -114,19 +116,19 @@ class Line extends Shape {
     }
 
 
-    int rows = 2;
-    int columns = insidePoints.length;
+    //int rows = 2;
+    //int columns = insidePoints.length;
     Set<Tuple2<int, int>> coordinates = Set();
 
 
-    var twoDList =
-        List.generate(rows, (i) => []..length = (columns), growable: false);
-    int k = 0;
+    //var twoDList =
+      //  List.generate(rows, (i) => []..length = (columns), growable: false);
+    //int k = 0;
     for (Offset offset in insidePoints) {
       coordinates.add(Tuple2<int, int>(offset.dx.toInt(), offset.dy.toInt()));
-      twoDList[0][k] = offset.dx.toInt();
-      twoDList[1][k] = offset.dy.toInt();
-      k += 1;
+      //twoDList[0][k] = offset.dx.toInt();
+      //twoDList[1][k] = offset.dy.toInt();
+      //k += 1;
     }
 
     return coordinates;

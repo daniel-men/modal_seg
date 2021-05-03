@@ -98,7 +98,7 @@ class ViewerState extends State<Viewer> {
   }
 
   Widget windowsViewer(BuildContext context) {
-    
+
     List<Shape> shapes = [];
     if (widget.shape != null) {
       shapes = widget.shape!;
@@ -202,7 +202,7 @@ class ViewerState extends State<Viewer> {
                 widthFactor: 1.0,
                 heightFactor: 1.0,
                 child: Container(
-                    padding: EdgeInsets.all(4.0),
+                    //padding: EdgeInsets.all(4.0),
                     color: Color.fromARGB(0, 0, 0, 0),
                     child: CustomPaint(
                       painter: ShapePainter(widget.drawingPoints,
@@ -212,7 +212,7 @@ class ViewerState extends State<Viewer> {
                 widthFactor: 1.0,
                 heightFactor: 1.0,
                 child: Container(
-                    padding: EdgeInsets.all(4.0),
+                    //padding: EdgeInsets.all(4.0),
                     //alignment: Alignment.topLeft,
                     child: Stack(children: shapes)))
           ],
