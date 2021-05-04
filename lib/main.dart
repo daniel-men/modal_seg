@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_seg/DrawingManager.dart';
 import 'package:modal_seg/ShapeManager.dart';
 import 'dart:ui' as ui;
 import 'package:modal_seg/widgets/DataImporter.dart';
@@ -45,7 +46,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Offset> drawingPoints = <Offset>[];
-  String drawingMode = "Line";
+  //String drawingMode = "Line";
   List<String> selectedFiles = [];
   ui.Image? selectedImage;
   Offset? currentPosition;
@@ -55,21 +56,24 @@ class _MyHomePageState extends State<MyHomePage> {
   String? ipAdress;
   List<Uint8List> imagesAsBytes = [];
 
+  /*
   // Drawing options
   bool _panEnabled = true;
   bool _zoomEnabled = false;
   bool _drawingEnabled = false;
 
-  int? _value;
+  //int? _value;
   bool? _closeShape = false;
   double? _strokeWidth = 2.0;
   bool? _straightLine = false;
+  */
 
   // Image properties needed for translation
   int? _originalHeight;
   int? _originalWidth;
 
   ShapeManager shapeManager = ShapeManager();
+  DrawingManager drawingManager = DrawingManager();
 
   @override
   Widget build(BuildContext context) {
@@ -87,16 +91,19 @@ class _MyHomePageState extends State<MyHomePage> {
                     //fileToShapeMap: fileToShapeMap,
                     currentlyOpened: _currentlyOpenedImage))),
         Viewer(
+          /*
             _panEnabled,
             _zoomEnabled,
             _drawingEnabled,
             _closeShape!,
             _strokeWidth!,
+            */
             _updateCursorPosition,
             _onNewShape,
-            drawingMode,
+            //drawingMode,
             selectedImage,
             shapeManager,
+            drawingManager,
             //fileToShapeMap[_currentlyOpenedImage],
             currentImage: _currentlyOpenedImage!,
             //fileToShapeMap: fileToShapeMap,
@@ -149,7 +156,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void _onNewShape(Shape shape) {
     setState(() {
       //shapes = List.from(shapes)..add(shape);
-      shape.strokeWidth = _strokeWidth == null ? 1.0 : _strokeWidth!;
+      // ignore: unnecessary_null_comparison
+      shape.strokeWidth = drawingManager.strokeWidth == null ? 1.0 : drawingManager.strokeWidth;
       /*
       if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
         List<Shape> shapes = fileToShapeMap[_currentlyOpenedImage]!;
@@ -174,7 +182,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   /*
   void _onDeleteSingleShape(String imageName, int index) {
-    // TODO refactor into ShapeManager
     if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
       List<Shape> shapes = fileToShapeMap[_currentlyOpenedImage]!;
       if (shapes.length == 1) {
@@ -311,63 +318,62 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             GestureDetector(
               onTap: () => setState(() {
+                /*
                 _panEnabled = true;
                 _zoomEnabled = false;
                 _drawingEnabled = false;
                 _value = 0;
+                */
+                drawingManager.enablePanMode();
               }),
               child: Container(
                 height: 60,
                 width: 60,
                 child: Icon(
                   Icons.pan_tool,
-                  color: _value == 0 ? Colors.white : Colors.black,
+                  color: drawingManager.currentInteractionMode() == 0 ? Colors.white : Colors.black,
                 ),
               ),
             ),
             GestureDetector(
               onTap: () => setState(() {
+                /*
                 _panEnabled = false;
                 _zoomEnabled = true;
                 _drawingEnabled = false;
                 _value = 1;
+                */
+                drawingManager.enableZoomMode();
               }),
               child: Container(
                 height: 60,
                 width: 60,
                 child: Icon(
                   Icons.zoom_in,
-                  color: _value == 1 ? Colors.white : Colors.black,
+                  color: drawingManager.currentInteractionMode() == 1 ? Colors.white : Colors.black,
                 ),
               ),
             ),
             GestureDetector(
               onTap: () => setState(() {
+                /*
                 _panEnabled = false;
                 _zoomEnabled = false;
                 _drawingEnabled = true;
                 _value = 2;
+                */
+                drawingManager.enableDrawMode();
               }),
               child: Container(
                 height: 50,
                 width: 60,
                 child: Icon(
                   Icons.edit,
-                  color: _value == 2 ? Colors.white : Colors.black,
+                  color: drawingManager.currentInteractionMode() == 2 ? Colors.white : Colors.black,
                 ),
               ),
             ),
-            Container(
-              child: Row(
-                children: [
-                  Text("Close shape"),
-                  Checkbox(
-                      value: _closeShape,
-                      onChanged: (value) => setState(
-                          () => _closeShape = value == null ? false : value))
-                ],
-              ),
-            )
+            
           ],
         ),
       ),
@@ -375,7 +381,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ElevatedButton(
         child: Text("Send to server"),
         onPressed: () async {
-          String shapeJson = await getShapeJson();
+          String shapeJson = await shapeManager.toJson();
           DataImporter.sendToServer(ipAdress, shapeJson);
         },
       ),
@@ -438,35 +444,20 @@ class _MyHomePageState extends State<MyHomePage> {
           return AlertDialog(
             title: Text("Tool Menu"),
             content: ToolSelectionWindow(
-                closeShape: _closeShape,
-                onShapeClosed: (value) => {
-                      setState(() {
-                        _closeShape = value == null ? false : value;
-                      })
-                    },
-                strokeWidth: _strokeWidth,
-                onStrokeWidthChanged: (value) => {
-                      setState(() {
-                        _strokeWidth = value;
-                      })
-                    },
-                straightLine: _straightLine,
-                onStraightLineChanged: (value) => {
-                      setState(() {
-                        _straightLine = value;
-                      })
-                    },
-                onDrawingModeChanged: (mode) => {
-                      setState(() {
-                        drawingMode = mode;
-                      })
-                    }),
+                closeShape: drawingManager.closeShape,
+                onShapeClosed: (value) => drawingManager.closeShape = value,
+                strokeWidth: drawingManager.strokeWidth,
+                onStrokeWidthChanged: (value) => drawingManager.strokeWidth = value,
+                straightLine: drawingManager.straightLine,
+                onStraightLineChanged: (value) => drawingManager.straightLine = value,
+                onDrawingModeChanged: (value) => drawingManager.drawingMode = value),
           );
         });
   }
 
+  /*
   Future<String> getShapeJson() async {
-    /*
+    
     Map<String?, String> jsonMap = {};
     for (MapEntry<String?, List<Shape>> mapEntry in fileToShapeMap.entries) {
       /*
@@ -486,7 +477,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     return jsonEncode(jsonMap);
-    */
-    return shapeManager.toJson();
+    
   }
+  */
 }

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
+import 'package:modal_seg/DrawingManager.dart';
 import 'package:modal_seg/ImageProcessing/ImageProcessingProvider.dart';
 import 'package:modal_seg/ShapeManager.dart';
 import 'package:modal_seg/ShapePainter.dart';
@@ -15,15 +16,18 @@ import 'package:modal_seg/widgets/CustomInteractiveViewer.dart';
 
 // ignore: must_be_immutable
 class Viewer extends StatefulWidget {
+  /*
   final bool _panEnabled;
   final bool _zoomEnabled;
   final bool _drawingEnabled;
   final bool _closeShape;
   final double _strokeWidth;
+  */
   final Function _updateCursorPosition;
   final Function _onNewShape;
-  final String drawingMode;
+  //final String drawingMode;
   final ShapeManager shapeManager;
+  final DrawingManager drawingManager;
   List<Offset> drawingPoints = [];
   //final List<Shape>? shape;
   final ui.Image? selectedImage;
@@ -33,16 +37,19 @@ class Viewer extends StatefulWidget {
   late Function onDelete;
 
   Viewer(
+    /*
       this._panEnabled,
       this._zoomEnabled,
       this._drawingEnabled,
       this._closeShape,
       this._strokeWidth,
+      */
       this._updateCursorPosition,
       this._onNewShape,
-      this.drawingMode,
+      //this.drawingMode,
       this.selectedImage,
       this.shapeManager,
+      this.drawingManager,
       //this.shape,
       {
         //required Map<String?, List<Shape>> fileToShapeMap,
@@ -62,7 +69,7 @@ class ViewerState extends State<Viewer> {
   //ShapeManager shapeManager = ShapeManager();
 
   void convertPointsToShape() {
-    switch (widget.drawingMode) {
+    switch (widget.drawingManager.drawingMode) {
       case "Circle":
         double radius = sqrt(pow(
                 widget.drawingPoints.last.dx - widget.drawingPoints.first.dx,
@@ -73,7 +80,7 @@ class ViewerState extends State<Viewer> {
             Circle(initialPoint: widget.drawingPoints.first, radius: radius));
         break;
       case "Line":
-        if (widget._closeShape) {
+        if (widget.drawingManager.closeShape) {
           widget.drawingPoints = Line.prunePoints(widget.drawingPoints);
         }
         /*
@@ -85,7 +92,7 @@ class ViewerState extends State<Viewer> {
         widget._onNewShape(Line(
             points: List.from(widget.drawingPoints),
             onMoved: widget._onNewShape,
-            closePath: widget._closeShape,
+            closePath: widget.drawingManager.closeShape,
             imageName: widget.currentImage,
             //index: index,
             index: widget.shapeManager.getNextIndex(),
@@ -131,14 +138,14 @@ class ViewerState extends State<Viewer> {
     }
     */
     return InteractiveViewer(
-        panEnabled: widget._panEnabled,
-        scaleEnabled: widget._zoomEnabled,
+        panEnabled: widget.drawingManager.panEnabled,
+        scaleEnabled: widget.drawingManager.zoomEnabled,
         minScale: 0.5,
         maxScale: 5.0,
         //constrained: false,
         boundaryMargin: const EdgeInsets.all(15.0),
         onInteractionUpdate: (ScaleUpdateDetails details) {
-          if (widget._drawingEnabled) {
+          if (widget.drawingManager.drawingEnabled) {
             setState(() {
               Offset point = details.localFocalPoint;
               widget.drawingPoints = List.from(widget.drawingPoints)
@@ -147,7 +154,7 @@ class ViewerState extends State<Viewer> {
           }
         },
         onInteractionEnd: (ScaleEndDetails details) {
-          if (widget._drawingEnabled) {
+          if (widget.drawingManager.drawingEnabled) {
             convertPointsToShape();
             setState(() {
               widget.drawingPoints.clear();
@@ -157,7 +164,7 @@ class ViewerState extends State<Viewer> {
         child: Stack(children: [
           GestureDetector(
               onPanUpdate: (DragUpdateDetails details) {
-                if (widget._drawingEnabled) {
+                if (widget.drawingManager.drawingEnabled) {
                   setState(() {
                     Offset point = details.localPosition;
                     widget.drawingPoints = List.from(widget.drawingPoints)
@@ -166,7 +173,7 @@ class ViewerState extends State<Viewer> {
                 }
               },
               onPanEnd: (DragEndDetails details) {
-                if (widget._drawingEnabled) {
+                if (widget.drawingManager.drawingEnabled) {
                   convertPointsToShape();
                   setState(() {
                     widget.drawingPoints.clear();
@@ -181,7 +188,7 @@ class ViewerState extends State<Viewer> {
                       color: Color.fromARGB(0, 0, 0, 0),
                       child: CustomPaint(
                         painter: ShapePainter(widget.drawingPoints,
-                            widget.drawingMode, widget.selectedImage, widget._strokeWidth),
+                            widget.drawingManager.drawingMode, widget.selectedImage, widget.drawingManager.strokeWidth),
                       )))),
           FractionallySizedBox(
               widthFactor: 1.0,
@@ -204,14 +211,14 @@ class ViewerState extends State<Viewer> {
     }
     */
     return CustomInteractiveViewer(
-        panEnabled: widget._panEnabled,
-        scaleEnabled: widget._zoomEnabled,
-        drawingEnabled: widget._drawingEnabled,
+        panEnabled: widget.drawingManager.panEnabled,
+        scaleEnabled: widget.drawingManager.zoomEnabled,
+        drawingEnabled: widget.drawingManager.drawingEnabled,
         minScale: 0.25,
         maxScale: 5.0,
         //boundaryMargin: const EdgeInsets.all(15.0),
         onInteractionUpdate: (ScaleUpdateDetails details) {
-          if (widget._drawingEnabled) {
+          if (widget.drawingManager.drawingEnabled) {
             setState(() {
               Offset point = details.localFocalPoint;
               widget.drawingPoints = List.from(widget.drawingPoints)
@@ -220,7 +227,7 @@ class ViewerState extends State<Viewer> {
           }
         },
         onInteractionEnd: (ScaleEndDetails details) {
-          if (widget._drawingEnabled && widget.drawingPoints.isNotEmpty) {
+          if (widget.drawingManager.drawingEnabled && widget.drawingPoints.isNotEmpty) {
             convertPointsToShape();
             setState(() {
               widget.drawingPoints.clear();
@@ -238,7 +245,7 @@ class ViewerState extends State<Viewer> {
                     color: Color.fromARGB(0, 0, 0, 0),
                     child: CustomPaint(
                       painter: ShapePainter(widget.drawingPoints,
-                          widget.drawingMode, widget.selectedImage, widget._strokeWidth),
+                          widget.drawingManager.drawingMode, widget.selectedImage, widget.drawingManager.strokeWidth),
                     ))),
             FractionallySizedBox(
                 widthFactor: 1.0,

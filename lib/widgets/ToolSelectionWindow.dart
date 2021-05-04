@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class ToolSelectionWindow extends StatefulWidget {
-  final Function(bool?)? onShapeClosed;
-  final Function(double?)? onStrokeWidthChanged;
-  final Function(bool?)? onStraightLineChanged;
+  final Function(bool?) onShapeClosed;
+  final Function(double?) onStrokeWidthChanged;
+  final Function(bool?) onStraightLineChanged;
   final Function(String) onDrawingModeChanged;
   bool? closeShape;
   double? strokeWidth;
@@ -69,7 +69,7 @@ class ToolSelectionWindowState extends State<ToolSelectionWindow> {
                           setState(() {
                             widget.closeShape = value;
                           });
-                          widget.onShapeClosed!(value);
+                          widget.onShapeClosed(value);
                         }),
                   ),
                   Card(
@@ -80,7 +80,7 @@ class ToolSelectionWindowState extends State<ToolSelectionWindow> {
                           setState(() {
                             widget.straightLine = value;
                           });
-                          widget.onStraightLineChanged!(value);
+                          widget.onStraightLineChanged(value!);
                         }),
                   ),
                   Card(
@@ -94,7 +94,7 @@ class ToolSelectionWindowState extends State<ToolSelectionWindow> {
                           setState(() {
                             widget.strokeWidth = value;
                           });
-                          widget.onStrokeWidthChanged!(value);
+                          widget.onStrokeWidthChanged(value);
                         })
                   ]))
                 ],

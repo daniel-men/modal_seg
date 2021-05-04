@@ -13,6 +13,9 @@ class ShapeManager {
 
   factory ShapeManager({num originalHeight = 1000, num originalWidth = 1000, num scaledHeight = 256, num scaledWidth = 256}) {
     _shapeManager._originalHeight = originalHeight;
+    _shapeManager._originalWidth = originalWidth;
+    _shapeManager._scaledHeight = scaledHeight;
+    _shapeManager._scaledWidth = scaledWidth;
     return _shapeManager;
   }
 
