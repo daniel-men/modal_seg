@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class ToolSelectionWindow extends StatefulWidget {
   final Function(bool?)? onShapeClosed;
   final Function(double?)? onStrokeWidthChanged;
@@ -84,9 +85,8 @@ class ToolSelectionWindowState extends State<ToolSelectionWindow> {
                   ),
                   Card(
                       child: Column(children: [
-                    Text("Stroke width"),
+                    Text("Stroke width: ${widget.strokeWidth!.round()}.0"),
                     Slider(
-                        label: "Stroke width",
                         min: 1.0,
                         max: 25.0,
                         value: widget.strokeWidth!,

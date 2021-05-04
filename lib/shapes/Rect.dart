@@ -1,11 +1,9 @@
-
-
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:modal_seg/shapes/Shape.dart';
 import 'package:tuple/tuple.dart';
 
+// ignore: must_be_immutable
 class Rectangle extends Shape {
   final Rect rect;
 
@@ -24,7 +22,7 @@ class Rectangle extends Shape {
   State<StatefulWidget> createState() => ShapeState();
 
   @override
-  Set<Tuple2<int, int>> getPointsInShape(int? originalHeight, int? originalWidth, int scaledHeight, int scaledWidth) {
+  Set<Tuple2<int, int>> getPointsInShape(num? originalHeight, num? originalWidth, num scaledHeight, num scaledWidth) {
     // TODO: implement getPointsInShape
     throw UnimplementedError();
   }

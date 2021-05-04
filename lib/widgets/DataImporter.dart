@@ -12,7 +12,6 @@ class DataImporter extends StatelessWidget {
   final Function? onNewDataCallback;
   final String? ipAdress;
   final List<String>? currentFiles;
-  bool queryForNewData = true;
 
   DataImporter(
       {Key? key, this.onNewDataCallback, this.ipAdress, this.currentFiles})
@@ -21,8 +20,6 @@ class DataImporter extends StatelessWidget {
   Future<void> loadNewDataAsync(List<String> filenames,
       [List<Uint8List>? bytes]) async {
     List<String> toBeAnnotated = [];
-    String filePath =
-        "C:\\Users\\d.mensing\\Documents\\Projekte\\Cure-OP\\Daten\\cropped\\unlabelled_frames\\";
     for (var fileName in filenames) {
       toBeAnnotated.add(fileName);
     }

@@ -7,6 +7,7 @@ import 'package:modal_seg/shapes/Shape.dart';
 import 'package:tuple/tuple.dart';
 
 
+// ignore: must_be_immutable
 class Line extends Shape {
   final List<Offset>? points;
   final Function? onMoved;
@@ -78,7 +79,7 @@ class Line extends Shape {
   State<StatefulWidget> createState() => ShapeState();
 
   @override
-  Set<Tuple2<int, int>> getPointsInShape(int? originalHeight, int? originalWidth, int scaledHeight, int scaledWidth) {
+  Set<Tuple2<int, int>> getPointsInShape(num? originalHeight, num? originalWidth, num scaledHeight, num scaledWidth) {
     List<Offset> insidePoints = [];
     if(closePath != null && closePath!) {
       Path path = Path();

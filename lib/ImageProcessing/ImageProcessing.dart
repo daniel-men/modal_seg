@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:image/image.dart' as img;
-import 'package:modal_seg/ImageProcessing/ArrayOps.dart';
 import 'package:modal_seg/ImageProcessing/Conversions.dart';
 //import 'package:scidart/numdart.dart';
 import 'package:tuple/tuple.dart';
@@ -54,13 +53,6 @@ Future<List<List<dynamic>?>> snapToBlack(ui.Image inputImage, Set<Tuple2<int, in
    return correctConnectivity(newPoints, image);
 }
 
-douglasPeucker(List<List<dynamic>> points) {
-  var dmax = 0;
-  var index = 0;
-  for (var i = 2; i < points.length-1; i++) {
-    
-  }
-}
 
 List<List<dynamic>?> correctConnectivity(List<List<dynamic>?> points, img.Image image) {
   for (var i = 1; i < points.length; i++) {

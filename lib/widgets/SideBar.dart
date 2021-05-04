@@ -1,18 +1,22 @@
-
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_seg/shapes/Shape.dart';
+import 'package:modal_seg/ShapeManager.dart';
 import 'package:modal_seg/widgets/FileCardListView.dart';
 
 class SideBar extends StatefulWidget {
   final List<String>? elements;
   final Function? onTap;
-  final Map<String?, List<Shape>>? fileToShapeMap;
+  final ShapeManager shapeManager;
+  //final Map<String?, List<Shape>>? fileToShapeMap;
   final String? currentlyOpened;
 
 
-  SideBar({this.onTap, this.elements, this.fileToShapeMap, this.currentlyOpened});
+  SideBar({
+    this.onTap,
+     this.elements,
+      //this.fileToShapeMap,
+      required this.shapeManager,
+       this.currentlyOpened});
 
   @override
   State<StatefulWidget> createState() => SideBarState();
@@ -20,6 +24,7 @@ class SideBar extends StatefulWidget {
 }
 
 class SideBarState extends State<SideBar> {
+
   @override
   Widget build(BuildContext context) {
     if (widget.elements!.isEmpty) {
@@ -34,7 +39,8 @@ class SideBarState extends State<SideBar> {
             children: widget.elements!
                 .map((f) {
                     Color? c = Colors.amber[200];
-                    if (widget.fileToShapeMap!.containsKey(f)) {
+                    //if (widget.fileToShapeMap!.containsKey(f)) {
+                    if(widget.shapeManager.contains(f)) {
                       c = Colors.green;
                     } else if (f == widget.currentlyOpened) {
                       c = Colors.yellow;

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:modal_seg/SelfPainter.dart';
 import 'package:tuple/tuple.dart';
 
+// ignore: must_be_immutable
 abstract class Shape extends StatefulWidget {
 
   late double xPosition;
@@ -16,7 +17,7 @@ abstract class Shape extends StatefulWidget {
   
   paint(Canvas canvas, Paint paint);
 
-  Set<Tuple2<int, int>> getPointsInShape(int? originalHeight, int? originalWidth, int scaledHeight, int scaledWidth);
+  Set<Tuple2<int, int>> getPointsInShape(num? originalHeight, num? originalWidth, num scaledHeight, num scaledWidth);
   void hasBeenMoved() {}
   int createTimeStamp() => DateTime.now().millisecondsSinceEpoch;
   Shape copy();
@@ -60,7 +61,7 @@ class ShapeState extends State<Shape> {
               ),
               child: IconButton(
                 icon: Icon(Icons.delete, color: Colors.white30),
-                onPressed: () => widget.onDelete(widget.imageName, widget.index)),
+                onPressed: () => widget.onDelete(widget)),
             ),
         )),
       ),

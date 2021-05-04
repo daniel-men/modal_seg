@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class FileCardListView extends StatefulWidget {
   final Function? onTap;
   final String? file;

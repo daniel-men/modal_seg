@@ -8,9 +8,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/physics.dart';
 import 'package:vector_math/vector_math_64.dart' show Quad, Vector3, Matrix4;
 
+// ignore: implementation_imports
 import 'package:flutter/src/widgets/basic.dart';
+// ignore: implementation_imports
 import 'package:flutter/src/widgets/framework.dart';
+// ignore: implementation_imports
 import 'package:flutter/src/widgets/gesture_detector.dart';
+// ignore: implementation_imports
 import 'package:flutter/src/widgets/ticker_provider.dart';
 
 /// A widget that enables pan and zoom interactions with its child.
@@ -86,18 +90,11 @@ class CustomInteractiveViewer extends StatefulWidget {
     this.drawingEnabled = true,
     this.transformationController,
     required this.child,
-  }) : assert(alignPanAxis != null),
-        assert(child != null),
-        assert(constrained != null),
-        assert(minScale != null),
-        assert(minScale > 0),
+  }) : assert(minScale > 0),
         assert(minScale.isFinite),
-        assert(maxScale != null),
         assert(maxScale > 0),
         assert(!maxScale.isNaN),
         assert(maxScale >= minScale),
-        assert(panEnabled != null),
-        assert(scaleEnabled != null),
   // boundaryMargin must be either fully infinite or fully finite, but not
   // a mix of both.
         assert((boundaryMargin.horizontal.isInfinite
@@ -560,6 +557,7 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer> with 
   double _currentRotation = 0.0; // Rotation of _transformationController.value.
   _GestureType? _gestureType;
 
+  // ignore: todo
   // TODO(justinmc): Add rotateEnabled parameter to the widget and remove this
   // hardcoded value when the rotation feature is implemented.
   // https://github.com/flutter/flutter/issues/57698
@@ -647,6 +645,7 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer> with 
       nextTotalTranslation.dx - offendingDistance.dx * currentScale,
       nextTotalTranslation.dy - offendingDistance.dy * currentScale,
     );
+    // ignore: todo
     // TODO(justinmc): This needs some work to handle rotation properly. The
     // idea is that the boundaries are axis aligned (boundariesAabbQuad), but
     // calculating the translation to put the viewport inside that Quad is more

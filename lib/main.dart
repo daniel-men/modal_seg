@@ -1,16 +1,14 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_seg/IO.dart';
+import 'package:modal_seg/ShapeManager.dart';
 import 'dart:ui' as ui;
 import 'package:modal_seg/widgets/DataImporter.dart';
 
 import 'package:modal_seg/widgets/DropDownAppBar.dart';
 import 'package:modal_seg/widgets/SideBar.dart';
-import 'package:modal_seg/widgets/ToolMenu.dart';
 import 'package:modal_seg/widgets/ToolSelectionWindow.dart';
 import 'package:modal_seg/widgets/Viewer.dart';
 
@@ -51,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> selectedFiles = [];
   ui.Image? selectedImage;
   Offset? currentPosition;
-  Map<String?, List<Shape>> fileToShapeMap = {};
+  //Map<String?, List<Shape>> fileToShapeMap = {};
   String? _cursorPosition;
   String? _currentlyOpenedImage = "";
   String? ipAdress;
@@ -71,6 +69,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int? _originalHeight;
   int? _originalWidth;
 
+  ShapeManager shapeManager = ShapeManager();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,7 +83,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: SideBar(
                     elements: selectedFiles,
                     onTap: changeSelectedImage,
-                    fileToShapeMap: fileToShapeMap,
+                    shapeManager: shapeManager,
+                    //fileToShapeMap: fileToShapeMap,
                     currentlyOpened: _currentlyOpenedImage))),
         Viewer(
             _panEnabled,
@@ -95,10 +96,11 @@ class _MyHomePageState extends State<MyHomePage> {
             _onNewShape,
             drawingMode,
             selectedImage,
-            fileToShapeMap[_currentlyOpenedImage],
+            shapeManager,
+            //fileToShapeMap[_currentlyOpenedImage],
             currentImage: _currentlyOpenedImage!,
-            fileToShapeMap: fileToShapeMap,
-            onDelete: _onDeleteSingleShape)
+            //fileToShapeMap: fileToShapeMap,
+            onDelete: (Shape shape) => setState(() {shapeManager.deleteShape(shape);}))
       ]),
       floatingActionButton: buildFAB(),
     );
@@ -116,7 +118,8 @@ class _MyHomePageState extends State<MyHomePage> {
               setState(() {
                 drawingPoints.clear();
                 //shapes.clear();
-                fileToShapeMap.remove(_currentlyOpenedImage);
+                //fileToShapeMap.remove(_currentlyOpenedImage);
+                shapeManager.deleteAllShapesForCurrentImage();
               });
             },
           )),
@@ -127,7 +130,8 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Icon(Icons.close),
               onPressed: () {
                 setState(() {
-                  fileToShapeMap[_currentlyOpenedImage] = [];
+                  //fileToShapeMap[_currentlyOpenedImage] = [];
+                  shapeManager.setNoShapesForCurrentImage();
                 });
               }))
     ]);
@@ -146,6 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       //shapes = List.from(shapes)..add(shape);
       shape.strokeWidth = _strokeWidth == null ? 1.0 : _strokeWidth!;
+      /*
       if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
         List<Shape> shapes = fileToShapeMap[_currentlyOpenedImage]!;
         bool found = false;
@@ -162,10 +167,14 @@ class _MyHomePageState extends State<MyHomePage> {
       } else {
         fileToShapeMap[_currentlyOpenedImage] = [shape];
       }
+      */
+      shapeManager.addShape(shape);
     });
   }
 
+  /*
   void _onDeleteSingleShape(String imageName, int index) {
+    // TODO refactor into ShapeManager
     if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
       List<Shape> shapes = fileToShapeMap[_currentlyOpenedImage]!;
       if (shapes.length == 1) {
@@ -192,6 +201,8 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
   }
+  */
+
 
   Future<void> loadImage(String filename) async {
     Uint8List imageBytes;
@@ -217,12 +228,17 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       if (_currentlyOpenedImage != null) {
         if (selectedFiles.indexOf(_currentlyOpenedImage!) ==
-                selectedFiles.indexOf(filename) - 1 &&
-            fileToShapeMap.containsKey(_currentlyOpenedImage!)) {
-          fileToShapeMap[filename] = fileToShapeMap[_currentlyOpenedImage]!.map((s) => s.copy()).toList();
+                selectedFiles.indexOf(filename) - 1 
+                &&
+            //fileToShapeMap.containsKey(_currentlyOpenedImage!)
+            shapeManager.contains(_currentlyOpenedImage!)
+            ) {
+          //fileToShapeMap[filename] = fileToShapeMap[_currentlyOpenedImage]!.map((s) => s.copy()).toList();
+          shapeManager.propagateShapes(_currentlyOpenedImage!, filename);
         }
       }
       _currentlyOpenedImage = filename;
+      shapeManager.setCurrentImage(filename);
     });
     loadImage(filename);
   }
@@ -374,7 +390,8 @@ class _MyHomePageState extends State<MyHomePage> {
         onNewDataCallback: (List<String> toBeAnnotated, List<Uint8List> bytes) {
           setState(() {
             selectedFiles = toBeAnnotated;
-            fileToShapeMap.clear();
+            //fileToShapeMap.clear();
+            shapeManager.clear();
             imagesAsBytes = bytes;
           });
         },
@@ -449,6 +466,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<String> getShapeJson() async {
+    /*
     Map<String?, String> jsonMap = {};
     for (MapEntry<String?, List<Shape>> mapEntry in fileToShapeMap.entries) {
       /*
@@ -468,5 +486,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     return jsonEncode(jsonMap);
+    */
+    return shapeManager.toJson();
   }
 }
