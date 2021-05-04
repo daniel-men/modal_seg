@@ -9,6 +9,7 @@ import 'dart:ui' as ui;
 import 'package:modal_seg/widgets/DataImporter.dart';
 
 import 'package:modal_seg/widgets/DropDownAppBar.dart';
+import 'package:modal_seg/widgets/FABS.dart';
 import 'package:modal_seg/widgets/SideBar.dart';
 import 'package:modal_seg/widgets/ToolSelectionWindow.dart';
 import 'package:modal_seg/widgets/Viewer.dart';
@@ -46,28 +47,14 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<Offset> drawingPoints = <Offset>[];
-  //String drawingMode = "Line";
   List<String> selectedFiles = [];
   ui.Image? selectedImage;
   Offset? currentPosition;
-  //Map<String?, List<Shape>> fileToShapeMap = {};
   String? _cursorPosition;
   String? _currentlyOpenedImage = "";
   String? ipAdress;
   List<Uint8List> imagesAsBytes = [];
-
-  /*
-  // Drawing options
-  bool _panEnabled = true;
-  bool _zoomEnabled = false;
-  bool _drawingEnabled = false;
-
-  //int? _value;
-  bool? _closeShape = false;
-  double? _strokeWidth = 2.0;
-  bool? _straightLine = false;
-  */
-
+  
   // Image properties needed for translation
   int? _originalHeight;
   int? _originalWidth;
@@ -88,31 +75,28 @@ class _MyHomePageState extends State<MyHomePage> {
                     elements: selectedFiles,
                     onTap: changeSelectedImage,
                     shapeManager: shapeManager,
-                    //fileToShapeMap: fileToShapeMap,
                     currentlyOpened: _currentlyOpenedImage))),
-        Viewer(
-          /*
-            _panEnabled,
-            _zoomEnabled,
-            _drawingEnabled,
-            _closeShape!,
-            _strokeWidth!,
-            */
+        Viewer(          
             _updateCursorPosition,
             _onNewShape,
-            //drawingMode,
             selectedImage,
             shapeManager,
-            drawingManager,
-            //fileToShapeMap[_currentlyOpenedImage],
-            currentImage: _currentlyOpenedImage!,
-            //fileToShapeMap: fileToShapeMap,
-            onDelete: (Shape shape) => setState(() {shapeManager.deleteShape(shape);}))
+            drawingManager
+            )
       ]),
-      floatingActionButton: buildFAB(),
+      floatingActionButton: FABS(
+        onClearPressed: () => setState(() {
+                drawingPoints.clear();
+                shapeManager.deleteAllShapesForCurrentImage();
+              }),
+        onEmptyPressed: () => setState(() {
+                  shapeManager.setNoShapesForCurrentImage();
+                }),
+      ),
     );
   }
 
+  /*
   Widget buildFAB() {
     return Stack(children: [
       Align(
@@ -124,8 +108,6 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               setState(() {
                 drawingPoints.clear();
-                //shapes.clear();
-                //fileToShapeMap.remove(_currentlyOpenedImage);
                 shapeManager.deleteAllShapesForCurrentImage();
               });
             },
@@ -137,12 +119,12 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Icon(Icons.close),
               onPressed: () {
                 setState(() {
-                  //fileToShapeMap[_currentlyOpenedImage] = [];
                   shapeManager.setNoShapesForCurrentImage();
                 });
               }))
     ]);
   }
+  */
 
   void _updateCursorPosition(PointerHoverEvent event) {
     int x = event.localPosition.dx.toInt();
@@ -155,61 +137,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _onNewShape(Shape shape) {
     setState(() {
-      //shapes = List.from(shapes)..add(shape);
       // ignore: unnecessary_null_comparison
       shape.strokeWidth = drawingManager.strokeWidth == null ? 1.0 : drawingManager.strokeWidth;
-      /*
-      if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
-        List<Shape> shapes = fileToShapeMap[_currentlyOpenedImage]!;
-        bool found = false;
-        for (Shape s in shapes) {
-          if (shape.timestamp == s.timestamp) {
-            int index = fileToShapeMap[_currentlyOpenedImage]!.indexOf(s);
-            fileToShapeMap[_currentlyOpenedImage]![index] = shape;
-            found = true;
-          }
-        }
-        if (!found) {
-          fileToShapeMap[_currentlyOpenedImage]!.add(shape);
-        }
-      } else {
-        fileToShapeMap[_currentlyOpenedImage] = [shape];
-      }
-      */
+      
       shapeManager.addShape(shape);
     });
   }
-
-  /*
-  void _onDeleteSingleShape(String imageName, int index) {
-    if (fileToShapeMap.containsKey(_currentlyOpenedImage)) {
-      List<Shape> shapes = fileToShapeMap[_currentlyOpenedImage]!;
-      if (shapes.length == 1) {
-        setState(() {
-          fileToShapeMap.remove(_currentlyOpenedImage);
-        });
-      } else {
-        if (index == shapes.length - 1) {
-          shapes.removeAt(index);
-         
-        }
-        else {
-          for (Shape s in shapes) {
-            if (s.index > index) {
-              s.index -= 1;
-            }
-          }
-          shapes.removeAt(index);
-          
-        }
-        setState(() {
-            fileToShapeMap[_currentlyOpenedImage] = shapes;
-          });
-      }
-    }
-  }
-  */
-
 
   Future<void> loadImage(String filename) async {
     Uint8List imageBytes;
@@ -237,10 +170,8 @@ class _MyHomePageState extends State<MyHomePage> {
         if (selectedFiles.indexOf(_currentlyOpenedImage!) ==
                 selectedFiles.indexOf(filename) - 1 
                 &&
-            //fileToShapeMap.containsKey(_currentlyOpenedImage!)
             shapeManager.contains(_currentlyOpenedImage!)
             ) {
-          //fileToShapeMap[filename] = fileToShapeMap[_currentlyOpenedImage]!.map((s) => s.copy()).toList();
           shapeManager.propagateShapes(_currentlyOpenedImage!, filename);
         }
       }
@@ -277,53 +208,17 @@ class _MyHomePageState extends State<MyHomePage> {
     return DropDownAppBar(
         child: Row(children: [
       Spacer(),
-      /*
-      Container(
-          padding: EdgeInsets.all(10),
-          child: ElevatedButton.icon(
-            onPressed: () async {
-              List<FilePickerCross> chosenFiles =
-                  await FilePickerCross.importMultipleFromStorage();
-              setState(() {
-                selectedFiles = chosenFiles.map((e) => e.path).toList();
-              });
-            },
-            icon: Icon(Icons.folder),
-            label: Text("Open files"),
-          )),*/
+      
       ElevatedButton(
           onPressed: () => openToolMenu(context),
           child: Text("Open Tool menu")),
-      /*
-      ToolMenu(onChanged: (value) {
-        setState(() {
-          drawingMode = value;
-        });
-      }),
-      */
-      /*
-      ElevatedButton(
-        child: Text("Save to file"),
-        onPressed: () {
-          String url =
-              "C:\\Users\\d.mensing\\Documents\\Projekte\\Cure-OP\\Daten\\segmentations.json";
-          writeShapesToFile(url, getShapeJson());
-        },
-      ),
-
-       */
+      
       Padding(
         padding: EdgeInsets.all(20.0),
         child: Row(
           children: [
             GestureDetector(
               onTap: () => setState(() {
-                /*
-                _panEnabled = true;
-                _zoomEnabled = false;
-                _drawingEnabled = false;
-                _value = 0;
-                */
                 drawingManager.enablePanMode();
               }),
               child: Container(
@@ -336,13 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             GestureDetector(
-              onTap: () => setState(() {
-                /*
-                _panEnabled = false;
-                _zoomEnabled = true;
-                _drawingEnabled = false;
-                _value = 1;
-                */
+              onTap: () => setState(() {                
                 drawingManager.enableZoomMode();
               }),
               child: Container(
@@ -356,12 +245,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             GestureDetector(
               onTap: () => setState(() {
-                /*
-                _panEnabled = false;
-                _zoomEnabled = false;
-                _drawingEnabled = true;
-                _value = 2;
-                */
                 drawingManager.enableDrawMode();
               }),
               child: Container(
@@ -396,7 +279,6 @@ class _MyHomePageState extends State<MyHomePage> {
         onNewDataCallback: (List<String> toBeAnnotated, List<Uint8List> bytes) {
           setState(() {
             selectedFiles = toBeAnnotated;
-            //fileToShapeMap.clear();
             shapeManager.clear();
             imagesAsBytes = bytes;
           });
@@ -455,29 +337,5 @@ class _MyHomePageState extends State<MyHomePage> {
         });
   }
 
-  /*
-  Future<String> getShapeJson() async {
-    
-    Map<String?, String> jsonMap = {};
-    for (MapEntry<String?, List<Shape>> mapEntry in fileToShapeMap.entries) {
-      /*
-      List<List<dynamic>?> points = await snapToBlack(
-          selectedImage!,
-          mapEntry.value
-              .getPointsInShape(_originalHeight, _originalWidth, 256, 256));
-      */
-      List<dynamic> points = [];
-      for (Shape shape in mapEntry.value) {
-        List<List<dynamic>> shapePoints = tupleToList(
-            shape.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
-        points.add(shapePoints);
-      }
-      //List<List<dynamic>> points = tupleToList(mapEntry.value.getPointsInShape(_originalHeight, _originalWidth, 256, 256));
-      jsonMap[mapEntry.key] = jsonEncode(points);
-    }
-
-    return jsonEncode(jsonMap);
-    
-  }
-  */
+ 
 }

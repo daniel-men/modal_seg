@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:modal_seg/DrawingManager.dart';
-import 'package:modal_seg/ImageProcessing/ImageProcessingProvider.dart';
+//import 'package:modal_seg/ImageProcessing/ImageProcessingProvider.dart';
 import 'package:modal_seg/ShapeManager.dart';
 import 'package:modal_seg/ShapePainter.dart';
 import 'package:modal_seg/shapes/Circle.dart';
@@ -16,57 +16,32 @@ import 'package:modal_seg/widgets/CustomInteractiveViewer.dart';
 
 // ignore: must_be_immutable
 class Viewer extends StatefulWidget {
-  /*
-  final bool _panEnabled;
-  final bool _zoomEnabled;
-  final bool _drawingEnabled;
-  final bool _closeShape;
-  final double _strokeWidth;
-  */
+
   final Function _updateCursorPosition;
   final Function _onNewShape;
-  //final String drawingMode;
   final ShapeManager shapeManager;
   final DrawingManager drawingManager;
   List<Offset> drawingPoints = [];
-  //final List<Shape>? shape;
   final ui.Image? selectedImage;
-  ImageProcessingProvider? imageProcessingProvider;
-  //late Map<String?, List<Shape>> fileToShapeMap;
-  late String currentImage;
-  late Function onDelete;
+  //ImageProcessingProvider? imageProcessingProvider;
+
 
   Viewer(
-    /*
-      this._panEnabled,
-      this._zoomEnabled,
-      this._drawingEnabled,
-      this._closeShape,
-      this._strokeWidth,
-      */
+   
       this._updateCursorPosition,
       this._onNewShape,
-      //this.drawingMode,
       this.selectedImage,
       this.shapeManager,
-      this.drawingManager,
-      //this.shape,
-      {
-        //required Map<String?, List<Shape>> fileToShapeMap,
-        required String currentImage,
-        required Function onDelete
-      }) {
-    //this.fileToShapeMap = fileToShapeMap;
-    this.currentImage = currentImage;
-    this.onDelete = onDelete;
-  }
+      this.drawingManager
+      );
+    
+  
 
   @override
   State<StatefulWidget> createState() => ViewerState();
 }
 
 class ViewerState extends State<Viewer> {
-  //ShapeManager shapeManager = ShapeManager();
 
   void convertPointsToShape() {
     switch (widget.drawingManager.drawingMode) {
@@ -83,20 +58,15 @@ class ViewerState extends State<Viewer> {
         if (widget.drawingManager.closeShape) {
           widget.drawingPoints = Line.prunePoints(widget.drawingPoints);
         }
-        /*
-        int index = 0;
-        if (widget.fileToShapeMap.containsKey(widget.currentImage)) {
-          index =  widget.fileToShapeMap[widget.currentImage]!.length;
-        }
-        */
         widget._onNewShape(Line(
             points: List.from(widget.drawingPoints),
             onMoved: widget._onNewShape,
             closePath: widget.drawingManager.closeShape,
-            imageName: widget.currentImage,
-            //index: index,
+            imageName: widget.shapeManager.currentImage,
             index: widget.shapeManager.getNextIndex(),
-            onDelete: widget.onDelete
+            onDelete: (value) => setState(() {
+              widget.shapeManager.deleteShape(value);
+            }) 
             ));
         break;
       case "Rect":
@@ -131,12 +101,6 @@ class ViewerState extends State<Viewer> {
 
   Widget windowsViewer(BuildContext context) {
 
-    /*
-    List<Shape> shapes = [];
-    if (widget.shape != null) {
-      shapes = widget.shape!;
-    }
-    */
     return InteractiveViewer(
         panEnabled: widget.drawingManager.panEnabled,
         scaleEnabled: widget.drawingManager.zoomEnabled,
@@ -204,19 +168,13 @@ class ViewerState extends State<Viewer> {
   }
 
   Widget iOsViewer() {
-    /*
-    List<Shape> shapes = [];
-    if (widget.shape != null) {
-      shapes = widget.shape!;
-    }
-    */
+
     return CustomInteractiveViewer(
         panEnabled: widget.drawingManager.panEnabled,
         scaleEnabled: widget.drawingManager.zoomEnabled,
         drawingEnabled: widget.drawingManager.drawingEnabled,
         minScale: 0.25,
         maxScale: 5.0,
-        //boundaryMargin: const EdgeInsets.all(15.0),
         onInteractionUpdate: (ScaleUpdateDetails details) {
           if (widget.drawingManager.drawingEnabled) {
             setState(() {

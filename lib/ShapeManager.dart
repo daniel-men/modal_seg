@@ -11,6 +11,8 @@ class ShapeManager {
   late num _scaledHeight;
   late num _scaledWidth;
 
+  String get currentImage => this._currentlyOpenedImage;
+
   factory ShapeManager({num originalHeight = 1000, num originalWidth = 1000, num scaledHeight = 256, num scaledWidth = 256}) {
     _shapeManager._originalHeight = originalHeight;
     _shapeManager._originalWidth = originalWidth;
