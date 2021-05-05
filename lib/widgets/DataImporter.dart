@@ -1,22 +1,17 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_seg/Base64Utils.dart';
-
-import 'package:http/http.dart' as http;
+import 'package:modal_seg/widgets/IOManager.dart';
 
 class DataImporter extends StatelessWidget {
-  final Function? onNewDataCallback;
-  final String? ipAdress;
-  final List<String>? currentFiles;
+  //final Function? onNewDataCallback;
+  final IOManager ioManager;
 
   DataImporter(
-      {Key? key, this.onNewDataCallback, this.ipAdress, this.currentFiles})
+      {Key? key, required this.ioManager})
       : super(key: key);
 
+  /*
   Future<void> loadNewDataAsync(List<String> filenames,
       [List<Uint8List>? bytes]) async {
     List<String> toBeAnnotated = [];
@@ -26,7 +21,9 @@ class DataImporter extends StatelessWidget {
 
     onNewDataCallback!(toBeAnnotated, bytes);
   }
+  */
 
+  /*
   Future<Map<dynamic, dynamic>?> checkForNewData() async {
     if (ipAdress != null) {
       String url = 'https://$ipAdress:5000/server';
@@ -40,20 +37,19 @@ class DataImporter extends StatelessWidget {
       }
     }
   }
+  */
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
         stream: Stream.periodic(Duration(seconds: 10)).asyncMap(
-            (i) => checkForNewData()), // i is null here (check periodic docs)
+            (i) => ioManager.checkForNewData()), // i is null here (check periodic docs)
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          List<String> filenames = [];
-          if (snapshot.hasData) {
-            filenames = List<String>.from(snapshot.data.keys);
-          }
-          if (snapshot.hasData &&
-              !snapshot.data.isEmpty &&
-              !listEquals(filenames, currentFiles)) {
+          List<String> filenames = snapshot.hasData ? List<String>.from(snapshot.data.keys) : [];
+          if (snapshot.hasData && !snapshot.data.isEmpty &&
+              !ioManager.checkIfFilesAreSame(filenames)) {
+          
+              
             return Container(
                 color: Colors.green[400],
                 margin: EdgeInsets.all(8.0),
@@ -62,13 +58,15 @@ class DataImporter extends StatelessWidget {
                         backgroundColor:
                             MaterialStateProperty.all(Colors.green[900])),
                     onPressed: () {
-                      loadNewDataAsync(
+                      ioManager.loadNewDataAsync(
                           filenames,
-                          snapshot.data.values
+                          snapshot.data.values);
+                          /*
                               .map((v) => Uint8List.fromList(
                                   Base64Util.base64Decoder(v)))
                               .toList()
                               .cast<Uint8List>());
+                              */
                     },
                     child: Text(
                       "Import new data",
@@ -86,11 +84,5 @@ class DataImporter extends StatelessWidget {
         }); // builder should also handle the case when data is not fetched yet
   }
 
-  static void sendToServer(String? ipAddress, dynamic json) {
-    if (ipAddress != null) {
-      String url = 'https://$ipAddress:5000/server';
-      http.post(Uri.parse(url),
-          headers: {'content-type': 'application/json'}, body: json);
-    }
-  }
+
 }

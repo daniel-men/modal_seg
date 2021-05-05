@@ -7,14 +7,13 @@ class SideBar extends StatefulWidget {
   final List<String>? elements;
   final Function? onTap;
   final ShapeManager shapeManager;
-  final String? currentlyOpened;
+
 
 
   SideBar({
     this.onTap,
      this.elements,
-      required this.shapeManager,
-       this.currentlyOpened});
+      required this.shapeManager});
 
   @override
   State<StatefulWidget> createState() => SideBarState();
@@ -39,7 +38,7 @@ class SideBarState extends State<SideBar> {
                     Color? c = Colors.amber[200];
                     if(widget.shapeManager.contains(f)) {
                       c = Colors.green;
-                    } else if (f == widget.currentlyOpened) {
+                    } else if (f == widget.shapeManager.currentImage) {
                       c = Colors.yellow;
                     }
                     return FileCardListView(onTap: widget.onTap, file: f, color: c);})
