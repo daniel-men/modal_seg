@@ -1,22 +1,33 @@
-
-
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:modal_seg/shapes/Shape.dart';
 import 'package:tuple/tuple.dart';
-
 
 // ignore: must_be_immutable
 class Line extends Shape {
   final List<Offset>? points;
   final Function? onMoved;
   final bool? closePath;
-  late final int timestamp;
+  
 
   late final List<List<dynamic>?> drawingPoints;
 
-  Line({this.points, this.onMoved, this.closePath, required Function onDelete, required String imageName, required int index, int? givenTimestamp}) {
+  Line(
+      {this.points,
+      this.onMoved,
+      this.closePath,
+      required String className,
+      required Color color,
+      required Function onDelete,
+      required String imageName,
+      required int index,
+      int? givenTimestamp})
+      : super(
+            className: className,
+            color: color,
+            onDelete: onDelete,
+            imageName: imageName,
+            index: index) {
     if (points != null) {
       xPosition = points!.first.dx;
       yPosition = points!.first.dy;
@@ -27,17 +38,7 @@ class Line extends Shape {
     } else {
       this.timestamp = givenTimestamp;
     }
-
-    this.imageName = imageName;
-    this.index = index;
-
-    this.onDelete = onDelete;
-    
-    //getDrawingPoints();
-
   }
-
-
 
   @override
   paint(Canvas canvas, Paint paint) {
@@ -58,7 +59,7 @@ class Line extends Shape {
     if (this.closePath != null && this.closePath!) {
       path.close();
     }
-    
+
     canvas.drawPath(path, paint);
     //canvas.drawRect(path.getBounds(), paint);
     //getPointsInShape(canvas);
@@ -72,16 +73,25 @@ class Line extends Shape {
     for (Offset p in this.points!) {
       translatedPoints.add(p.translate(deltaX, deltaY));
     }
-    onMoved!(Line(points: translatedPoints, onMoved: onMoved, givenTimestamp: timestamp, onDelete: onDelete, imageName: imageName, index: index));
+    onMoved!(Line(
+        className: className,
+        color: color,
+        points: translatedPoints,
+        onMoved: onMoved,
+        givenTimestamp: timestamp,
+        onDelete: onDelete,
+        imageName: imageName,
+        index: index));
   }
 
   @override
   State<StatefulWidget> createState() => ShapeState();
 
   @override
-  Set<Tuple2<int, int>> getPointsInShape(num? originalHeight, num? originalWidth, num scaledHeight, num scaledWidth) {
+  Set<Tuple2<int, int>> getPointsInShape(num? originalHeight,
+      num? originalWidth, num scaledHeight, num scaledWidth) {
     List<Offset> insidePoints = [];
-    if(closePath != null && closePath!) {
+    if (closePath != null && closePath!) {
       Path path = Path();
 
       for (Offset point in points!) {
@@ -94,7 +104,6 @@ class Line extends Shape {
 
       int i = 0;
       int j = 0;
-      
 
       while (i < boundingBox.width - 1) {
         j = 0;
@@ -103,7 +112,8 @@ class Line extends Shape {
           double tempY = boundingBox.topLeft.dy + j;
           Offset tempPoint = Offset(tempX, tempY);
           if (wnPnPoly(tempPoint) != 0) {
-            insidePoints.add(Offset(tempX / scaledWidth * originalWidth!, tempY / scaledHeight * originalHeight!));
+            insidePoints.add(Offset(tempX / scaledWidth * originalWidth!,
+                tempY / scaledHeight * originalHeight!));
           }
           j += 1;
         }
@@ -112,24 +122,13 @@ class Line extends Shape {
     } else {
       for (Offset p in points!) {
         insidePoints.add(p);
-        //insidePoints.add(Offset(p.dx / scaledWidth * originalWidth!, p.dy / scaledHeight * originalHeight!));
       }
     }
 
-
-    //int rows = 2;
-    //int columns = insidePoints.length;
     Set<Tuple2<int, int>> coordinates = Set();
 
-
-    //var twoDList =
-      //  List.generate(rows, (i) => []..length = (columns), growable: false);
-    //int k = 0;
     for (Offset offset in insidePoints) {
       coordinates.add(Tuple2<int, int>(offset.dx.toInt(), offset.dy.toInt()));
-      //twoDList[0][k] = offset.dx.toInt();
-      //twoDList[1][k] = offset.dy.toInt();
-      //k += 1;
     }
 
     return coordinates;
@@ -187,7 +186,15 @@ class Line extends Shape {
 
   @override
   Shape copy() {
-    return Line(points: points, onMoved: onMoved, givenTimestamp: timestamp, onDelete: onDelete, imageName: imageName, index: index)
-    ..strokeWidth = strokeWidth;
+    return Line(
+        className: className,
+        color: color,
+        points: points,
+        onMoved: onMoved,
+        givenTimestamp: timestamp,
+        onDelete: onDelete,
+        imageName: imageName,
+        index: index)
+      ..strokeWidth = strokeWidth;
   }
 }

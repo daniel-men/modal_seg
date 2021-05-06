@@ -8,6 +8,7 @@ class ShapeManager {
   Map<String, List<Shape>> _fileToShapeMap = {};
   String _currentlyOpenedImage = "";
   Map<String, Color> _classes ={};
+  String _activeClass = "";
   late num _originalHeight;
   late num _originalWidth;
   late num _scaledHeight;
@@ -17,6 +18,11 @@ class ShapeManager {
 
   String get currentImage => this._currentlyOpenedImage;
   set currentImage(String imageName) => this._currentlyOpenedImage = imageName;
+
+  void setActiveClass(String key) => _activeClass = key;
+  String get activeClass => _classes.containsKey(_activeClass) ? _activeClass : "";
+
+  Color getClassColor(String classname) => _classes[classname]!;
 
   factory ShapeManager({num originalHeight = 1000, num originalWidth = 1000, num scaledHeight = 256, num scaledWidth = 256}) {
     _shapeManager._originalHeight = originalHeight;
@@ -30,7 +36,10 @@ class ShapeManager {
 
   void removeClass(String className) => this._classes.remove(className);
 
-  void addClass(String newClass, Color color) => this._classes[newClass] = color;
+  void addClass(String newClass, Color color) {
+    this._classes[newClass] = color;
+    this._activeClass = newClass;
+  }
 
   void changeClassname(String newClassname, String oldClassname) {
     _classes[newClassname] = _classes[oldClassname]!;
@@ -38,6 +47,8 @@ class ShapeManager {
   }
 
   void setClassColor(String className, Color color) => _classes[className] = color;
+
+  Color getActiveColor() => _activeClass != "" ? _classes[_activeClass]! : Colors.blue;
 
   void addShape(Shape shape) {
     if (_fileToShapeMap.containsKey(_currentlyOpenedImage)) {
@@ -130,5 +141,6 @@ class ShapeManager {
 
   void propagateShapes(String source, String target) =>
     _fileToShapeMap[target] = _fileToShapeMap[_currentlyOpenedImage]!.map((shape) => shape.copy()).toList();
+
 
 }

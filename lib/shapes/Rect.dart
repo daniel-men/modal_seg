@@ -7,9 +7,31 @@ import 'package:tuple/tuple.dart';
 class Rectangle extends Shape {
   final Rect rect;
 
-  Rectangle(this.rect) {
+  Rectangle(
+    this.rect,
+    {
+      required String className,
+      required Color color,
+      required Function onDelete,
+      required String imageName,
+      required int index,
+      int? givenTimestamp
+    }
+    ) : super(
+        className: className,
+        color: color,
+        onDelete: onDelete,
+        imageName: imageName,
+        index: index
+      ) {
     xPosition = rect.center.dx;
     yPosition = rect.center.dy;
+
+    if (givenTimestamp == null) {
+      timestamp = createTimeStamp();
+    } else {
+      this.timestamp = givenTimestamp;
+    }
   }
 
 

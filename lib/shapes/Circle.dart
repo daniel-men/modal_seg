@@ -10,9 +10,32 @@ class Circle extends Shape {
   final double? radius;
   final Offset? initialPoint;
 
-  Circle({this.radius, this.initialPoint}) {
+  Circle({
+      this.radius,
+      this.initialPoint,
+      required String className,
+      required Color color,
+      required Function onDelete,
+      required String imageName,
+      required int index,
+      int? givenTimestamp}) : super(
+        className: className,
+        color: color,
+        onDelete: onDelete,
+        imageName: imageName,
+        index: index
+      ) {
+
+        
     xPosition = initialPoint!.dx;
     yPosition = initialPoint!.dy;
+
+
+    if (givenTimestamp == null) {
+      timestamp = createTimeStamp();
+    } else {
+      this.timestamp = givenTimestamp;
+    }
   }
 
 

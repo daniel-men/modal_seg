@@ -9,11 +9,20 @@ abstract class Shape extends StatefulWidget {
 
   late double xPosition;
   late double yPosition;
-  late int timestamp;
   late double strokeWidth = 1.0;
   late final String imageName;
   late int index;
   late final Function onDelete;
+  late final String className;
+  late final Color color;
+  late final int timestamp;
+
+  Shape({
+    required this.className,
+    required this.color,
+    required this.onDelete,
+    required this.imageName,
+    required this.index});
   
   paint(Canvas canvas, Paint paint);
 

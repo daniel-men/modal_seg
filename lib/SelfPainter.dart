@@ -13,7 +13,7 @@ class SelfPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
       Paint paint = new Paint()
-      ..color = Colors.blue
+      ..color = shape.widget.color
       ..strokeCap = StrokeCap.round
       ..strokeWidth = shape.widget.strokeWidth
       ..style = PaintingStyle.stroke;

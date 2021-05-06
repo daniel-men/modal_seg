@@ -49,8 +49,13 @@ class ClassSelectionSidebarState extends State<ClassSelectionSidebar> {
   List<Widget> createClassTiles() {
     return widget.shapeManager.classes.entries
         .map((e) => Card(
-            color: Colors.white,
+            color: e.key == widget.shapeManager.activeClass ? Colors.green : Colors.white,
             child: ListTile(
+              onTap: () {
+                setState(() {
+                  widget.shapeManager.setActiveClass(e.key);
+                });                
+              },
               title: Text(e.key),
               leading: GestureDetector(
                   onTap: () => showColorPickerDialog(e.key, e.value),

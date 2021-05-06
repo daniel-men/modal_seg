@@ -16,7 +16,6 @@ import 'package:modal_seg/widgets/CustomInteractiveViewer.dart';
 
 // ignore: must_be_immutable
 class Viewer extends StatefulWidget {
-
   final Function _updateCursorPosition;
   final Function _onNewShape;
   final ShapeManager shapeManager;
@@ -25,25 +24,16 @@ class Viewer extends StatefulWidget {
   final ui.Image? selectedImage;
   //ImageProcessingProvider? imageProcessingProvider;
 
-
-  Viewer(
-   
-      this._updateCursorPosition,
-      this._onNewShape,
-      this.selectedImage,
-      this.shapeManager,
-      this.drawingManager
-      );
-    
-  
+  Viewer(this._updateCursorPosition, this._onNewShape, this.selectedImage,
+      this.shapeManager, this.drawingManager);
 
   @override
   State<StatefulWidget> createState() => ViewerState();
 }
 
 class ViewerState extends State<Viewer> {
-
   void convertPointsToShape() {
+    String activeClass = widget.shapeManager.activeClass;
     switch (widget.drawingManager.drawingMode) {
       case "Circle":
         double radius = sqrt(pow(
@@ -51,23 +41,32 @@ class ViewerState extends State<Viewer> {
                 2) +
             pow(widget.drawingPoints.last.dy - widget.drawingPoints.first.dy,
                 2));
-        widget._onNewShape(
-            Circle(initialPoint: widget.drawingPoints.first, radius: radius));
+        widget._onNewShape(Circle(
+            initialPoint: widget.drawingPoints.first,
+            radius: radius,
+            className: activeClass,
+            color: widget.shapeManager.getClassColor(activeClass),
+            imageName: widget.shapeManager.currentImage,
+            index: widget.shapeManager.getNextIndex(),
+            onDelete: (value) => setState(() {
+                  widget.shapeManager.deleteShape(value);
+                })));
         break;
       case "Line":
         if (widget.drawingManager.closeShape) {
           widget.drawingPoints = Line.prunePoints(widget.drawingPoints);
         }
         widget._onNewShape(Line(
+            className: activeClass,
+            color: widget.shapeManager.getClassColor(activeClass),
             points: List.from(widget.drawingPoints),
             onMoved: widget._onNewShape,
             closePath: widget.drawingManager.closeShape,
             imageName: widget.shapeManager.currentImage,
             index: widget.shapeManager.getNextIndex(),
             onDelete: (value) => setState(() {
-              widget.shapeManager.deleteShape(value);
-            }) 
-            ));
+                  widget.shapeManager.deleteShape(value);
+                })));
         break;
       case "Rect":
         double radius = sqrt(pow(
@@ -75,8 +74,15 @@ class ViewerState extends State<Viewer> {
                 2) +
             pow(widget.drawingPoints.last.dy - widget.drawingPoints.first.dy,
                 2));
-        widget._onNewShape(Rectangle(Rect.fromCircle(
-            center: widget.drawingPoints.first, radius: radius)));
+        widget._onNewShape(Rectangle(
+            Rect.fromCircle(center: widget.drawingPoints.first, radius: radius),
+            className: activeClass,
+            color: widget.shapeManager.getClassColor(activeClass),
+            imageName: widget.shapeManager.currentImage,
+            index: widget.shapeManager.getNextIndex(),
+            onDelete: (value) => setState(() {
+                  widget.shapeManager.deleteShape(value);
+                })));
         break;
       default:
     }
@@ -100,7 +106,6 @@ class ViewerState extends State<Viewer> {
   }
 
   Widget windowsViewer(BuildContext context) {
-
     return InteractiveViewer(
         panEnabled: widget.drawingManager.panEnabled,
         scaleEnabled: widget.drawingManager.zoomEnabled,
@@ -151,8 +156,12 @@ class ViewerState extends State<Viewer> {
                       padding: EdgeInsets.all(4.0),
                       color: Color.fromARGB(0, 0, 0, 0),
                       child: CustomPaint(
-                        painter: ShapePainter(widget.drawingPoints,
-                            widget.drawingManager.drawingMode, widget.selectedImage, widget.drawingManager.strokeWidth),
+                        painter: ShapePainter(
+                            widget.drawingPoints,
+                            widget.drawingManager.drawingMode,
+                            widget.selectedImage,
+                            widget.drawingManager.strokeWidth,
+                            widget.shapeManager.getActiveColor())
                       )))),
           FractionallySizedBox(
               widthFactor: 1.0,
@@ -163,12 +172,11 @@ class ViewerState extends State<Viewer> {
                   child: Stack(
                     //children: shapes
                     children: widget.shapeManager.getCurrentShapes(),
-                    )))
+                  )))
         ]));
   }
 
   Widget iOsViewer() {
-
     return CustomInteractiveViewer(
         panEnabled: widget.drawingManager.panEnabled,
         scaleEnabled: widget.drawingManager.zoomEnabled,
@@ -185,7 +193,8 @@ class ViewerState extends State<Viewer> {
           }
         },
         onInteractionEnd: (ScaleEndDetails details) {
-          if (widget.drawingManager.drawingEnabled && widget.drawingPoints.isNotEmpty) {
+          if (widget.drawingManager.drawingEnabled &&
+              widget.drawingPoints.isNotEmpty) {
             convertPointsToShape();
             setState(() {
               widget.drawingPoints.clear();
@@ -202,8 +211,12 @@ class ViewerState extends State<Viewer> {
                     //padding: EdgeInsets.all(4.0),
                     color: Color.fromARGB(0, 0, 0, 0),
                     child: CustomPaint(
-                      painter: ShapePainter(widget.drawingPoints,
-                          widget.drawingManager.drawingMode, widget.selectedImage, widget.drawingManager.strokeWidth),
+                      painter: ShapePainter(
+                          widget.drawingPoints,
+                          widget.drawingManager.drawingMode,
+                          widget.selectedImage,
+                          widget.drawingManager.strokeWidth,
+                          widget.shapeManager.getActiveColor()),
                     ))),
             FractionallySizedBox(
                 widthFactor: 1.0,
@@ -212,9 +225,8 @@ class ViewerState extends State<Viewer> {
                     //padding: EdgeInsets.all(4.0),
                     //alignment: Alignment.topLeft,
                     child: Stack(
-                      //children: shapes
-                      children: widget.shapeManager.getCurrentShapes()
-                      )))
+                        //children: shapes
+                        children: widget.shapeManager.getCurrentShapes())))
           ],
         )));
   }
