@@ -10,85 +10,85 @@ import 'package:modal_seg/widgets/TapIcon.dart';
 import 'package:modal_seg/widgets/ToolSelectionWindow.dart';
 
 class SegmentationAppBar extends StatefulWidget with PreferredSizeWidget {
-
   final DrawingManager drawingManager;
   final IOManager ioManager;
   final String currentImage;
   final double height;
   final String? cursorPosition;
 
-  const SegmentationAppBar({Key? key,
-   required this.drawingManager,
-   required this.ioManager,
-   required this.currentImage,
-   this.height = kToolbarHeight,
-   required this.cursorPosition}) : super(key: key);
+  const SegmentationAppBar(
+      {Key? key,
+      required this.drawingManager,
+      required this.ioManager,
+      required this.currentImage,
+      this.height = kToolbarHeight,
+      required this.cursorPosition})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => SegmentationAppBarState();
 
   @override
   Size get preferredSize => Size.fromHeight(height);
-  
 }
 
 class SegmentationAppBarState extends State<SegmentationAppBar> {
-
   @override
   PreferredSizeWidget build(BuildContext context) {
     return CustomAppBar(
-      height: widget.height,
-      child: Row(children: [
-      Spacer(),
-      ElevatedButton(
-          onPressed: () => openToolMenu(context),
-          child: Text("Open Tool menu")),
-      
-      Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Row(
-          children: [
-            TapIcon(
-              onTap: () => setState(() {
-                widget.drawingManager.enablePanMode();
-              }),
-              icon: Icons.pan_tool,
-              isActive: widget.drawingManager.currentInteractionMode() == 0              
+        height: widget.height,
+        child: //Column(children: [
+          Row(children: [
+            Spacer(),
+            ElevatedButton(
+                onPressed: () => openToolMenu(context),
+                child: Text("Open Tool menu")),
+            Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  TapIcon(
+                      onTap: () => setState(() {
+                            widget.drawingManager.enablePanMode();
+                          }),
+                      icon: Icons.pan_tool,
+                      isActive:
+                          widget.drawingManager.currentInteractionMode() == 0),
+                  TapIcon(
+                      onTap: () => setState(() {
+                            widget.drawingManager.enableZoomMode();
+                          }),
+                      icon: Icons.zoom_in,
+                      isActive:
+                          widget.drawingManager.currentInteractionMode() == 1),
+                  TapIcon(
+                      onTap: () => setState(() {
+                            widget.drawingManager.enableDrawMode();
+                          }),
+                      icon: Icons.edit,
+                      isActive:
+                          widget.drawingManager.currentInteractionMode() == 2),
+                ],
+              ),
             ),
-            TapIcon(
-              onTap: () => setState(() {                
-                widget.drawingManager.enableZoomMode();
-              }),
-              icon: Icons.zoom_in,
-              isActive: widget.drawingManager.currentInteractionMode() == 1              
+            createImageNameContainer(),
+            createCursorContainer(),
+            ElevatedButton(
+              child: Text("Send to server"),
+              onPressed: () async {
+                widget.ioManager.exportCallback();
+              },
             ),
-            TapIcon(
-              onTap: () => setState(() {
-                widget.drawingManager.enableDrawMode();
-              }),
-              icon: Icons.edit,
-              isActive: widget.drawingManager.currentInteractionMode() == 2),
-               
-          ],
-        ),
-      ),
-      createImageNameContainer(),
-      createCursorContainer(),
-      ElevatedButton(
-        child: Text("Send to server"),
-        onPressed: () async {
-          widget.ioManager.exportCallback();
-        },
-      ),
-      ElevatedButton(
-        child: Text("Set IP"),
-        onPressed: () {
-          showIPDialog(context);
-        },
-      ),
-      DataImporter(ioManager: widget.ioManager),
-      Spacer()
-    ]));
+            ElevatedButton(
+              child: Text("Set IP"),
+              onPressed: () {
+                showIPDialog(context);
+              },
+            ),
+            DataImporter(ioManager: widget.ioManager),
+            Spacer()
+          //])
+        ]));
   }
 
   Widget createImageNameContainer() {
@@ -120,7 +120,6 @@ class SegmentationAppBarState extends State<SegmentationAppBar> {
     return cursorContainer;
   }
 
-
   Future<void> openToolMenu(BuildContext context) {
     return showDialog(
         context: context,
@@ -129,12 +128,16 @@ class SegmentationAppBarState extends State<SegmentationAppBar> {
             title: Text("Tool Menu"),
             content: ToolSelectionWindow(
                 closeShape: widget.drawingManager.closeShape,
-                onShapeClosed: (value) => widget.drawingManager.closeShape = value,
+                onShapeClosed: (value) =>
+                    widget.drawingManager.closeShape = value,
                 strokeWidth: widget.drawingManager.strokeWidth,
-                onStrokeWidthChanged: (value) => widget.drawingManager.strokeWidth = value,
+                onStrokeWidthChanged: (value) =>
+                    widget.drawingManager.strokeWidth = value,
                 straightLine: widget.drawingManager.straightLine,
-                onStraightLineChanged: (value) => widget.drawingManager.straightLine = value,
-                onDrawingModeChanged: (value) => widget.drawingManager.drawingMode = value),
+                onStraightLineChanged: (value) =>
+                    widget.drawingManager.straightLine = value,
+                onDrawingModeChanged: (value) =>
+                    widget.drawingManager.drawingMode = value),
           );
         });
   }
@@ -167,5 +170,4 @@ class SegmentationAppBarState extends State<SegmentationAppBar> {
           );
         });
   }
-  
 }

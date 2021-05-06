@@ -46,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _MyHomePageState() {
     ioManager.exportCallback = exportShapesToServer;
+    ioManager.onNewDataCallback = newDataCallback;
   }
 
   ShapeManager shapeManager = ShapeManager();
@@ -56,6 +57,8 @@ class _MyHomePageState extends State<MyHomePage> {
     String json = await shapeManager.toJson();
     ioManager.sendToServer(json);
   }
+
+  newDataCallback() => setState(() {}); // Trigger state update on new data
 
   @override
   Widget build(BuildContext context) {

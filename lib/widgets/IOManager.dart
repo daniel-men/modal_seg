@@ -17,8 +17,9 @@ class IOManager {
   int? _originalWidth;
   String? _ipAdress;
   late Function exportCallback;
+  late Function onNewDataCallback;
 
-  factory IOManager({exportCallback}) {
+  factory IOManager({exportCallback, onNewDataCallback}) {
     return _manager;
   }
 
@@ -80,21 +81,17 @@ class IOManager {
   }
 
   Future<void> loadNewDataAsync(List<String> filenames,
-      [Iterable? encodedBytes]) async {
-    List<String> toBeAnnotated = [];
-    for (var fileName in filenames) {
-      toBeAnnotated.add(fileName);
-    }
+      [Iterable? encodedBytes]) async {    
 
-    //onNewDataCallback!(toBeAnnotated, bytes);
-    _selectedFiles = toBeAnnotated;
+    _selectedFiles = filenames;
     if (encodedBytes != null) {
       List<Uint8List> bytes = encodedBytes.map((v) => Uint8List.fromList(
                                   Base64Util.base64Decoder(v)))
                               .toList()
                               .cast<Uint8List>();
       _imagesAsBytes = bytes;
-    }
+      onNewDataCallback();
+    }    
   }
 
   bool checkIfFilesAreSame(List<String> newFiles) => 
