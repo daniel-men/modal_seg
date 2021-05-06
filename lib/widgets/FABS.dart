@@ -11,8 +11,10 @@ class FABS extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      Align(
-          alignment: Alignment.bottomRight,
+      Positioned(
+          //alignment: Alignment.bottomRight,
+          right: MediaQuery.of(context).size.width * .19,
+          bottom:  MediaQuery.of(context).size.height * 0.01,
           child: FloatingActionButton(
             backgroundColor: Colors.red,
             child: Icon(Icons.refresh),
@@ -27,8 +29,10 @@ class FABS extends StatelessWidget {
             */
             onPressed: onClearPressed,
           )),
-      Align(
-          alignment: Alignment.bottomCenter,
+      Positioned(
+          left: MediaQuery.of(context).size.width * .215,
+          bottom:  MediaQuery.of(context).size.height * 0.01,
+          //alignment: Alignment.bottomCenter,
           child: FloatingActionButton(
               backgroundColor: Colors.red,
               child: Icon(Icons.close),

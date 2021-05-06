@@ -23,7 +23,11 @@ class ShapePainter extends CustomPainter {
 
     if (image != null) {
       //canvas.drawImage(image, Offset(0, 0), paint);
-      paintImage(canvas: canvas, rect: Rect.fromLTRB(0, 0, 256, 256), image: image!, fit: BoxFit.scaleDown, repeat: ImageRepeat.noRepeat, scale: 1.0);
+      
+      double top = size.height / 2 - 128;
+      double left = size.width / 2 - 128;
+
+      paintImage(canvas: canvas, rect: Rect.fromLTRB(left, top, left+256, top+256), image: image!, fit: BoxFit.scaleDown, repeat: ImageRepeat.noRepeat, scale: 1.0);
     }
     drawCurrent(canvas, paint);
   }

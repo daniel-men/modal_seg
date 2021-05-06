@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:modal_seg/IO.dart';
 import 'package:modal_seg/shapes/Shape.dart';
 
@@ -6,10 +7,13 @@ class ShapeManager {
   static final ShapeManager _shapeManager = ShapeManager._internal();
   Map<String, List<Shape>> _fileToShapeMap = {};
   String _currentlyOpenedImage = "";
+  Map<String, Color> _classes ={};
   late num _originalHeight;
   late num _originalWidth;
   late num _scaledHeight;
   late num _scaledWidth;
+
+  Map<String, Color> get classes => this._classes;
 
   String get currentImage => this._currentlyOpenedImage;
   set currentImage(String imageName) => this._currentlyOpenedImage = imageName;
@@ -23,6 +27,17 @@ class ShapeManager {
   }
 
   ShapeManager._internal();
+
+  void removeClass(String className) => this._classes.remove(className);
+
+  void addClass(String newClass, Color color) => this._classes[newClass] = color;
+
+  void changeClassname(String newClassname, String oldClassname) {
+    _classes[newClassname] = _classes[oldClassname]!;
+    _classes.remove(oldClassname);
+  }
+
+  void setClassColor(String className, Color color) => _classes[className] = color;
 
   void addShape(Shape shape) {
     if (_fileToShapeMap.containsKey(_currentlyOpenedImage)) {
@@ -115,4 +130,5 @@ class ShapeManager {
 
   void propagateShapes(String source, String target) =>
     _fileToShapeMap[target] = _fileToShapeMap[_currentlyOpenedImage]!.map((shape) => shape.copy()).toList();
+
 }

@@ -25,7 +25,6 @@ class ToolSelectionWindow extends StatefulWidget {
 }
 
 class ToolSelectionWindowState extends State<ToolSelectionWindow> {
-
   tabChanged(int tab) {
     switch (tab) {
       case 0:
@@ -43,66 +42,69 @@ class ToolSelectionWindowState extends State<ToolSelectionWindow> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-        length: 3,
-        child: Scaffold(
-          appBar: TabBar(
-            onTap: tabChanged,
-            unselectedLabelColor: Colors.lightBlue,
-            labelColor: Colors.blue,
-            tabs: [
-              Tab(icon: Icon(Icons.line_style)),
-              Tab(icon: Icon(Icons.circle)),
-              Tab(icon: Icon(Icons.check_box_outline_blank))
-            ],
-          ),
-          body: TabBarView(
-            children: [
-              Container(
-                  child: Column(
-                children: [
-                  Card(
-                    child: CheckboxListTile(
-                        value: widget.closeShape,
-                        title: Text("Close shape"),
-                        onChanged: (value) {
-                          setState(() {
-                            widget.closeShape = value;
-                          });
-                          widget.onShapeClosed(value);
-                        }),
-                  ),
-                  Card(
-                    child: CheckboxListTile(
-                        value: widget.straightLine,
-                        title: Text("Straight line"),
-                        onChanged: (value) {
-                          setState(() {
-                            widget.straightLine = value;
-                          });
-                          widget.onStraightLineChanged(value!);
-                        }),
-                  ),
-                  Card(
-                      child: Column(children: [
-                    Text("Stroke width: ${widget.strokeWidth!.round()}.0"),
-                    Slider(
-                        min: 1.0,
-                        max: 25.0,
-                        value: widget.strokeWidth!,
-                        onChanged: (value) {
-                          setState(() {
-                            widget.strokeWidth = value;
-                          });
-                          widget.onStrokeWidthChanged(value);
-                        })
-                  ]))
+    return    
+        DefaultTabController(
+            length: 3,
+            child: Scaffold(
+              appBar: TabBar(
+                onTap: tabChanged,
+                unselectedLabelColor: Colors.lightBlue,
+                labelColor: Colors.blue,
+                tabs: [
+                  Tab(icon: Icon(Icons.line_style)),
+                  Tab(icon: Icon(Icons.circle)),
+                  Tab(icon: Icon(Icons.check_box_outline_blank))
                 ],
-              )),
-              Container(),
-              Container()
-            ],
-          ),
-        ));
+              ),
+              body: TabBarView(
+                children: [                  
+                  Container(
+                      child: Column(
+                    children: [
+                      Card(
+                        child: CheckboxListTile(
+                            value: widget.closeShape,
+                            title: Text("Close shape"),
+                            onChanged: (value) {
+                              setState(() {
+                                widget.closeShape = value;
+                              });
+                              widget.onShapeClosed(value);
+                            }),
+                      ),
+                      Card(
+                        child: CheckboxListTile(
+                            value: widget.straightLine,
+                            title: Text("Straight line"),
+                            onChanged: (value) {
+                              setState(() {
+                                widget.straightLine = value;
+                              });
+                              widget.onStraightLineChanged(value!);
+                            }),
+                      ),
+                      Card(
+                          child: Column(children: [
+                        Text("Stroke width: ${widget.strokeWidth!.round()}.0"),
+                        Slider(
+                            min: 1.0,
+                            max: 25.0,
+                            value: widget.strokeWidth!,
+                            onChanged: (value) {
+                              setState(() {
+                                widget.strokeWidth = value;
+                              });
+                              widget.onStrokeWidthChanged(value);
+                            })
+                      ]))
+                    ],
+                  )),
+                  Container(),
+                  Container()
+                ],
+              ),
+            ));
   }
+
+  
 }
