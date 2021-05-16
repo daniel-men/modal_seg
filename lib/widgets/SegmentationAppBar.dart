@@ -42,7 +42,7 @@ class SegmentationAppBarState extends State<SegmentationAppBar> {
             Spacer(),
             ElevatedButton(
                 onPressed: () => openToolMenu(context),
-                child: Text("Open Tool menu")),
+                child: Text("Drawing Tools")),
             Padding(
               padding: EdgeInsets.all(20.0),
               child: Row(

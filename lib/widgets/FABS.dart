@@ -12,37 +12,21 @@ class FABS extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(children: [
       Positioned(
-          //alignment: Alignment.bottomRight,
           right: MediaQuery.of(context).size.width * .19,
           bottom:  MediaQuery.of(context).size.height * 0.01,
           child: FloatingActionButton(
             backgroundColor: Colors.red,
             child: Icon(Icons.refresh),
-            tooltip: 'Clear Screen',
-            /*
-            onPressed: () {
-              setState(() {
-                drawingPoints.clear();
-                shapeManager.deleteAllShapesForCurrentImage();
-              });
-            },
-            */
+            tooltip: 'Clear Screen',           
             onPressed: onClearPressed,
           )),
       Positioned(
           left: MediaQuery.of(context).size.width * .215,
           bottom:  MediaQuery.of(context).size.height * 0.01,
-          //alignment: Alignment.bottomCenter,
           child: FloatingActionButton(
               backgroundColor: Colors.red,
               child: Icon(Icons.close),
-              /*
-              onPressed: () {                
-                setState(() {
-                  shapeManager.setNoShapesForCurrentImage();
-                });
-              }
-              */
+              tooltip: 'No segmentation in image',
               onPressed: onEmptyPressed,
               ))
     ]);

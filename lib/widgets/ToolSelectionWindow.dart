@@ -44,20 +44,21 @@ class ToolSelectionWindowState extends State<ToolSelectionWindow> {
   Widget build(BuildContext context) {
     return    
         DefaultTabController(
-            length: 3,
+            length: 4,
             child: Scaffold(
               appBar: TabBar(
                 onTap: tabChanged,
                 unselectedLabelColor: Colors.lightBlue,
                 labelColor: Colors.blue,
                 tabs: [
-                  Tab(icon: Icon(Icons.line_style)),
-                  Tab(icon: Icon(Icons.circle)),
+                  Tab(icon: Icon(Icons.edit_outlined)),
+                  Tab(icon: Icon(Icons.linear_scale_outlined)),
+                  Tab(icon: Icon(Icons.lens_outlined)),
                   Tab(icon: Icon(Icons.check_box_outline_blank))
                 ],
               ),
               body: TabBarView(
-                children: [                  
+                children: [  
                   Container(
                       child: Column(
                     children: [
@@ -99,6 +100,7 @@ class ToolSelectionWindowState extends State<ToolSelectionWindow> {
                       ]))
                     ],
                   )),
+                  Container(),                
                   Container(),
                   Container()
                 ],

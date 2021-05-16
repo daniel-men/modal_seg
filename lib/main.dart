@@ -53,17 +53,9 @@ class _MyHomePageState extends State<MyHomePage> {
   DrawingManager drawingManager = DrawingManager();
   IOManager ioManager = IOManager();
 
-  exportShapesToServer() async {
-    String json = await shapeManager.toJson();
-    ioManager.sendToServer(json);
-  }
-
-  newDataCallback() => setState(() {}); // Trigger state update on new data
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: buildAppBar(),
       appBar: SegmentationAppBar(
           drawingManager: drawingManager,
           ioManager: ioManager,
@@ -98,6 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // ### Callbacks to trigger redraw or interaction between managers###
+
   void _updateCursorPosition(PointerHoverEvent event) {
     int x = event.localPosition.dx.toInt();
     int y = event.localPosition.dy.toInt();
@@ -125,7 +119,15 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       }
       shapeManager.currentImage = filename;
+      ioManager.loadImage(filename);
     });
-    ioManager.loadImage(filename);
+    
   }
+
+  exportShapesToServer() async {
+    String json = await shapeManager.toJson();
+    ioManager.sendToServer(json);
+  }
+
+  newDataCallback() => setState(() {}); // Trigger state update on new data
 }
