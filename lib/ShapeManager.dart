@@ -22,7 +22,7 @@ class ShapeManager {
   void setActiveClass(String key) => _activeClass = key;
   String get activeClass => _classes.containsKey(_activeClass) ? _activeClass : "";
 
-  Color getClassColor(String classname) => _classes[classname]!;
+  Color getClassColor(String classname) => classname == "" ? Colors.blue : _classes[classname]!;
 
   factory ShapeManager({num originalHeight = 1000, num originalWidth = 1000, num scaledHeight = 256, num scaledWidth = 256}) {
     _shapeManager._originalHeight = originalHeight;
@@ -141,6 +141,7 @@ class ShapeManager {
 
   void propagateShapes(String source, String target) =>
     _fileToShapeMap[target] = _fileToShapeMap[_currentlyOpenedImage]!.map((shape) => shape.copy()).toList();
+
 
 
 }
