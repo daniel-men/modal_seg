@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:modal_seg/widgets/IOManager.dart';
+import 'package:modal_seg/IOManager.dart';
 
 class DataImporter extends StatelessWidget {
   final IOManager ioManager;

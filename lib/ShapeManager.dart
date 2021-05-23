@@ -124,7 +124,10 @@ class ShapeManager {
   String shapesToJson(List<Shape> shapes) {
     List<dynamic> points = [];
     for (Shape shape in shapes) {
-      points.add(getShapePoints(shape));
+      points.add({
+        'class': shape.className,
+        'points': getShapePoints(shape)
+      });
     }
     return jsonEncode(points);
   }

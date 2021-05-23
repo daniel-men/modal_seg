@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:modal_seg/DrawingManager.dart';
 import 'package:modal_seg/widgets/CustomAppBar.dart';
 import 'package:modal_seg/widgets/DataImporter.dart';
-import 'package:modal_seg/widgets/IOManager.dart';
+import 'package:modal_seg/IOManager.dart';
 import 'package:modal_seg/widgets/TapIcon.dart';
 import 'package:modal_seg/widgets/ToolSelectionWindow.dart';
 

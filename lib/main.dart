@@ -5,7 +5,7 @@ import 'package:modal_seg/DrawingManager.dart';
 import 'package:modal_seg/ShapeManager.dart';
 import 'package:modal_seg/widgets/ClassSelectionSidebar.dart';
 import 'package:modal_seg/widgets/FABS.dart';
-import 'package:modal_seg/widgets/IOManager.dart';
+import 'package:modal_seg/IOManager.dart';
 import 'package:modal_seg/widgets/SegmentationAppBar.dart';
 import 'package:modal_seg/widgets/SideBar.dart';
 import 'package:modal_seg/widgets/Viewer.dart';
@@ -115,7 +115,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> changeSelectedImage(String filename) async {
-    // Set new image   
+    // Set new image
+
     if (shapeManager.currentImage != "") {
       if (ioManager.isFollowingImage(shapeManager.currentImage, filename) &&
           shapeManager.contains(shapeManager.currentImage)) {
@@ -123,8 +124,9 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
     shapeManager.currentImage = filename;
-    await  ioManager.loadImage(filename);
-    setState(() {});    
+    await ioManager.loadImage(filename);
+    setState(() {});
+    
   }
 
   exportShapesToServer() async {
