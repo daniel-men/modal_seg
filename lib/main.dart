@@ -47,6 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
   _MyHomePageState() {
     ioManager.exportCallback = exportShapesToServer;
     ioManager.onNewDataCallback = newDataCallback;
+    drawingManager.update = redraw;
   }
 
   ShapeManager shapeManager = ShapeManager();
@@ -92,6 +93,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // ### Callbacks to trigger redraw or interaction between managers###
 
+  void redraw() {
+    setState(() {});
+  }
+
   void _updateCursorPosition(PointerHoverEvent event) {
     int x = event.localPosition.dx.toInt();
     int y = event.localPosition.dy.toInt();
@@ -110,18 +115,16 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> changeSelectedImage(String filename) async {
-    // Set new image
-    setState(() {
-      if (shapeManager.currentImage != "") {
-        if (ioManager.isFollowingImage(shapeManager.currentImage, filename) &&
-            shapeManager.contains(shapeManager.currentImage)) {
-          shapeManager.propagateShapes(_currentlyOpenedImage!, filename);
-        }
+    // Set new image   
+    if (shapeManager.currentImage != "") {
+      if (ioManager.isFollowingImage(shapeManager.currentImage, filename) &&
+          shapeManager.contains(shapeManager.currentImage)) {
+        shapeManager.propagateShapes(_currentlyOpenedImage!, filename);
       }
-      shapeManager.currentImage = filename;
-      ioManager.loadImage(filename);
-    });
-    
+    }
+    shapeManager.currentImage = filename;
+    await  ioManager.loadImage(filename);
+    setState(() {});    
   }
 
   exportShapesToServer() async {

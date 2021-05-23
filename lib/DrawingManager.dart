@@ -19,6 +19,8 @@ class DrawingManager {
   bool? _straightLine = false;
   String _drawingMode = "Line";
 
+  late Function? update;
+
   InteractionMode _currentMode = InteractionMode.PAN;
 
   set closeShape(bool? value) => this._closeShape = value;
@@ -38,7 +40,7 @@ class DrawingManager {
   bool get drawingEnabled => this._drawingEnabled;
 
 
-  factory DrawingManager() {
+  factory DrawingManager({Function? update}) {
     return _drawingManager;
   }
 
@@ -49,6 +51,7 @@ class DrawingManager {
     _zoomEnabled = false;
     _drawingEnabled = false;
     _currentMode = InteractionMode.PAN;
+    update!();
   }
 
   void enableDrawMode() {
@@ -56,6 +59,7 @@ class DrawingManager {
     _zoomEnabled = false;
     _drawingEnabled = true;
     _currentMode = InteractionMode.DRAW;
+    update!();
   }
 
   void enableZoomMode() {
@@ -63,6 +67,7 @@ class DrawingManager {
     _zoomEnabled = true;
     _drawingEnabled = false;
     _currentMode = InteractionMode.ZOOM;
+    update!();
   }
 
   int currentInteractionMode() => _currentMode.index;
