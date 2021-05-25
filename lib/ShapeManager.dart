@@ -13,6 +13,7 @@ class ShapeManager {
   late num _originalWidth;
   late num _scaledHeight;
   late num _scaledWidth;
+  Offset _offset = Offset(0, 0);
 
   Map<String, Color> get classes => this._classes;
 
@@ -49,6 +50,8 @@ class ShapeManager {
   void setClassColor(String className, Color color) => _classes[className] = color;
 
   Color getActiveColor() => _activeClass != "" ? _classes[_activeClass]! : Colors.blue;
+
+  void setOffset(Offset offset) => _offset = offset;
 
   void addShape(Shape shape) {
     if (_fileToShapeMap.containsKey(_currentlyOpenedImage)) {
@@ -118,7 +121,7 @@ class ShapeManager {
   void setNoShapesForCurrentImage() => _fileToShapeMap[_currentlyOpenedImage] = [];
 
   List<List<dynamic>> getShapePoints(Shape shape) {
-    return tupleToList(shape.getPointsInShape(_originalHeight, _originalWidth, _scaledHeight, _scaledWidth));
+    return tupleToList(shape.getPointsInShape(_originalHeight, _originalWidth, _scaledHeight, _scaledWidth, offset:_offset));
   }
 
   String shapesToJson(List<Shape> shapes) {
@@ -144,6 +147,8 @@ class ShapeManager {
 
   void propagateShapes(String source, String target) =>
     _fileToShapeMap[target] = _fileToShapeMap[_currentlyOpenedImage]!.map((shape) => shape.copy()).toList();
+
+ 
 
 
 

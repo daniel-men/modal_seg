@@ -12,7 +12,7 @@ import 'package:modal_seg/shapes/Rect.dart';
 import 'dart:ui' as ui;
 import 'dart:io' show Platform;
 
-import 'package:modal_seg/widgets/CustomInteractiveViewer.dart';
+import 'package:modal_seg/widgets/CustomInteractiveViewer.dart' as custom;
 
 // ignore: must_be_immutable
 class Viewer extends StatefulWidget {
@@ -32,6 +32,19 @@ class Viewer extends StatefulWidget {
 }
 
 class ViewerState extends State<Viewer> {
+  late final custom.TransformationController controller;
+
+  ViewerState() {
+    controller = custom.TransformationController();
+    controller.addListener(() {
+      updateTransformation(controller.value);
+     });
+  }
+
+  void updateTransformation(Matrix4 updateMarix) {
+
+  }
+
   void convertPointsToShape() {
     String activeClass = widget.shapeManager.activeClass;
     switch (widget.drawingManager.drawingMode) {
@@ -90,12 +103,14 @@ class ViewerState extends State<Viewer> {
 
   @override
   Widget build(BuildContext context) {
-    Widget? viewer;
+    Widget? viewer = windowsViewer(context);
+    /*
     if (Platform.isWindows) {
       viewer = windowsViewer(context);
     } else if (Platform.isIOS) {
       viewer = iOsViewer();
     }
+    */
 
     return Expanded(
         flex: 3,
@@ -105,10 +120,16 @@ class ViewerState extends State<Viewer> {
             child: viewer));
   }
 
+  void offsetCallback(Offset offset) {
+    widget.shapeManager.setOffset(offset);
+  }
+
   Widget windowsViewer(BuildContext context) {
-    return InteractiveViewer(
+    return custom.CustomInteractiveViewer(
+        drawingEnabled: widget.drawingManager.drawingEnabled,
         panEnabled: widget.drawingManager.panEnabled,
         scaleEnabled: widget.drawingManager.zoomEnabled,
+        transformationController: controller,
         minScale: 0.5,
         maxScale: 5.0,
         //constrained: false,
@@ -123,6 +144,7 @@ class ViewerState extends State<Viewer> {
           }
         },
         onInteractionEnd: (ScaleEndDetails details) {
+          
           if (widget.drawingManager.drawingEnabled) {
             convertPointsToShape();
             setState(() {
@@ -131,6 +153,7 @@ class ViewerState extends State<Viewer> {
           }
         },
         child: Stack(children: [
+          /*
           GestureDetector(
               onPanUpdate: (DragUpdateDetails details) {
                 if (widget.drawingManager.drawingEnabled) {
@@ -148,8 +171,9 @@ class ViewerState extends State<Viewer> {
                     widget.drawingPoints.clear();
                   });
                 }
-              },
-              child: FractionallySizedBox(
+              },*/
+              //child: 
+              FractionallySizedBox(
                   widthFactor: 1.0,
                   heightFactor: 1.0,
                   child: Container(
@@ -161,8 +185,11 @@ class ViewerState extends State<Viewer> {
                             widget.drawingManager.drawingMode,
                             widget.selectedImage,
                             widget.drawingManager.strokeWidth,
-                            widget.shapeManager.getActiveColor())
-                      )))),
+                            widget.shapeManager.getActiveColor(),
+                            offsetCallback)
+                      ))
+                      //)
+                      ),
           FractionallySizedBox(
               widthFactor: 1.0,
               heightFactor: 1.0,
@@ -177,7 +204,7 @@ class ViewerState extends State<Viewer> {
   }
 
   Widget iOsViewer() {
-    return CustomInteractiveViewer(
+    return custom.CustomInteractiveViewer(
         panEnabled: widget.drawingManager.panEnabled,
         scaleEnabled: widget.drawingManager.zoomEnabled,
         drawingEnabled: widget.drawingManager.drawingEnabled,
@@ -216,7 +243,8 @@ class ViewerState extends State<Viewer> {
                           widget.drawingManager.drawingMode,
                           widget.selectedImage,
                           widget.drawingManager.strokeWidth,
-                          widget.shapeManager.getActiveColor()),
+                          widget.shapeManager.getActiveColor(),
+                          offsetCallback),
                     ))),
             FractionallySizedBox(
                 widthFactor: 1.0,

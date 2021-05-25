@@ -7,7 +7,7 @@
         {
             "name": "modal_seg",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
         }
     ]
 }

@@ -21,8 +21,8 @@ class SegmentationAppBar extends StatefulWidget with PreferredSizeWidget {
       required this.drawingManager,
       required this.ioManager,
       required this.currentImage,
-      this.height = kToolbarHeight,
-      required this.cursorPosition})
+      this.cursorPosition,
+      this.height = kToolbarHeight})
       : super(key: key);
 
   @override

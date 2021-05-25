@@ -44,7 +44,7 @@ class Rectangle extends Shape {
   State<StatefulWidget> createState() => ShapeState();
 
   @override
-  Set<Tuple2<int, int>> getPointsInShape(num? originalHeight, num? originalWidth, num scaledHeight, num scaledWidth) {
+  Set<Tuple2<int, int>> getPointsInShape(num? originalHeight, num? originalWidth, num scaledHeight, num scaledWidth, {Offset offset=const Offset(0, 0)}) {
     // TODO: implement getPointsInShape
     throw UnimplementedError();
   }

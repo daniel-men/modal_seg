@@ -89,13 +89,14 @@ class Line extends Shape {
 
   @override
   Set<Tuple2<int, int>> getPointsInShape(num? originalHeight,
-      num? originalWidth, num scaledHeight, num scaledWidth) {
+      num? originalWidth, num scaledHeight, num scaledWidth, {Offset offset=const Offset(0, 0)}) {
     List<Offset> insidePoints = [];
+
     if (closePath != null && closePath!) {
       Path path = Path();
 
       for (Offset point in points!) {
-        Offset pointTranslated = point - points!.first;
+        Offset pointTranslated = point - points!.first; // TODO check offset
         path.lineTo(pointTranslated.dx, pointTranslated.dy);
       }
 
@@ -121,7 +122,7 @@ class Line extends Shape {
       }
     } else {
       for (Offset p in points!) {
-        insidePoints.add(p);
+        insidePoints.add(p - offset);
       }
     }
 

@@ -12,8 +12,9 @@ class ShapePainter extends CustomPainter {
   final ui.Image? image;
   final double strokeWidth;
   final Color activeColor;
+  final Function offsetCallback;
 
-  ShapePainter(this.points, this.mode, this.image, this.strokeWidth, this.activeColor);
+  ShapePainter(this.points, this.mode, this.image, this.strokeWidth, this.activeColor, this.offsetCallback);
 
   void paint(Canvas canvas, Size size) {
     Paint paint = new Paint()
@@ -25,6 +26,8 @@ class ShapePainter extends CustomPainter {
     if (image != null) {      
       double top = size.height / 2 - 128;
       double left = size.width / 2 - 128;
+
+      offsetCallback(Offset(left, top));
 
       paintImage(canvas: canvas, rect: Rect.fromLTRB(left, top, left+256, top+256), image: image!, fit: BoxFit.scaleDown, repeat: ImageRepeat.noRepeat, scale: 1.0);
     }

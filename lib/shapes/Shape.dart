@@ -26,7 +26,7 @@ abstract class Shape extends StatefulWidget {
   
   paint(Canvas canvas, Paint paint);
 
-  Set<Tuple2<int, int>> getPointsInShape(num? originalHeight, num? originalWidth, num scaledHeight, num scaledWidth);
+  Set<Tuple2<int, int>> getPointsInShape(num? originalHeight, num? originalWidth, num scaledHeight, num scaledWidth, {Offset offset=const Offset(0, 0)});
   void hasBeenMoved() {}
   int createTimeStamp() => DateTime.now().millisecondsSinceEpoch;
   Shape copy();

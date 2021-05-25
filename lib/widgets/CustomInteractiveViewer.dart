@@ -801,8 +801,8 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer> with 
       if (widget.drawingEnabled) {
         widget.onInteractionUpdate?.call(ScaleUpdateDetails(
           focalPoint: details.focalPoint,
-          localFocalPoint: focalPointScene,
-          scale: details.scale,
+          localFocalPoint: details.localFocalPoint,
+          scale: scale,
           rotation: details.rotation,
         ));
       }
@@ -826,6 +826,8 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer> with 
         // the same places in the scene. That means that the focal point of
         // the scale should be on the same place in the scene before and after
         // the scale.
+
+       
         final Offset focalPointSceneScaled = _transformationController!.toScene(
           details.localFocalPoint,
         );
@@ -833,6 +835,7 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer> with 
           _transformationController!.value,
           focalPointSceneScaled - _referenceFocalPoint!,
         );
+        
 
         // details.localFocalPoint should now be at the same location as the
         // original _referenceFocalPoint point. If it's not, that's because
@@ -879,7 +882,14 @@ class _CustomInteractiveViewerState extends State<CustomInteractiveViewer> with 
         _referenceFocalPoint = _transformationController!.toScene(
           details.localFocalPoint,
         );
-        break;
+        widget.onInteractionUpdate?.call(ScaleUpdateDetails(
+          focalPoint: translationChange,
+          localFocalPoint: details.localFocalPoint,
+          scale: scale,
+          rotation: details.rotation,
+        ));
+        return;
+        //break;
     }
     widget.onInteractionUpdate?.call(ScaleUpdateDetails(
       focalPoint: details.focalPoint,
