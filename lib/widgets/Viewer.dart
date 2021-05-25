@@ -46,6 +46,10 @@ class ViewerState extends State<Viewer> {
   }
 
   void convertPointsToShape() {
+    if (widget.drawingPoints.isEmpty) {
+      return;
+    }
+    
     String activeClass = widget.shapeManager.activeClass;
     switch (widget.drawingManager.drawingMode) {
       case "Circle":
