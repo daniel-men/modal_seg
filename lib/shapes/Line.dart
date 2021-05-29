@@ -2,13 +2,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:modal_seg/shapes/Shape.dart';
 import 'package:tuple/tuple.dart';
+import 'dart:math';
 
 // ignore: must_be_immutable
 class Line extends Shape {
   final List<Offset>? points;
   final Function? onMoved;
   final bool? closePath;
-  
 
   late final List<List<dynamic>?> drawingPoints;
 
@@ -50,19 +50,13 @@ class Line extends Shape {
       path.lineTo(pointTranslated.dx, pointTranslated.dy);
     }
 
-    /*
-    for (List<dynamic>? p in drawingPoints) {
-      path.lineTo(p![0] - xPosition, p[1]! - yPosition);
-    }
-    */
 
     if (this.closePath != null && this.closePath!) {
       path.close();
     }
 
     canvas.drawPath(path, paint);
-    //canvas.drawRect(path.getBounds(), paint);
-    //getPointsInShape(canvas);
+
   }
 
   @override
@@ -89,7 +83,8 @@ class Line extends Shape {
 
   @override
   Set<Tuple2<int, int>> getPointsInShape(num? originalHeight,
-      num? originalWidth, num scaledHeight, num scaledWidth, {Offset offset=const Offset(0, 0)}) {
+      num? originalWidth, num scaledHeight, num scaledWidth,
+      {Offset offset = const Offset(0, 0)}) {
     List<Offset> insidePoints = [];
 
     if (closePath != null && closePath!) {
@@ -121,8 +116,9 @@ class Line extends Shape {
         i += 1;
       }
     } else {
-      for (Offset p in points!) {
-        insidePoints.add(p - offset);
+      insidePoints = points!.map((p) => roundOffset(p - offset)).toList();
+      for (var i = 0; i < strokeWidth / 2; i++) {
+        insidePoints = applyThickness(insidePoints);
       }
     }
 
@@ -164,6 +160,8 @@ class Line extends Shape {
 
     return wn;
   }
+
+  
 
   static List<Offset> prunePoints(List<Offset> points) {
     double minDist = double.infinity;

@@ -31,6 +31,31 @@ abstract class Shape extends StatefulWidget {
   int createTimeStamp() => DateTime.now().millisecondsSinceEpoch;
   Shape copy();
 
+  Offset roundOffset(Offset offset) => Offset(offset.dx.truncateToDouble(), offset.dy.truncateToDouble());
+
+  List<Offset> applyThickness(List<Offset> points) {
+    List<Offset> dilatedPoints = [];
+    for (Offset point in points) {
+      dilatedPoints.addAll(dilation(point));
+    }
+
+    return dilatedPoints.toSet().toList();
+  }
+
+  List<Offset> dilation(Offset point) {
+    return [
+      point,
+      Offset(point.dx - 1, point.dy - 1),
+      Offset(point.dx - 1, point.dy),
+      Offset(point.dx, point.dy - 1),
+      Offset(point.dx - 1, point.dy + 1),
+      Offset(point.dx + 1, point.dy - 1),
+      Offset(point.dx + 1, point.dy + 1),
+      Offset(point.dx + 1, point.dy),
+      Offset(point.dx, point.dy + 1),
+    ];
+  }
+
 }
 
 class ShapeState extends State<Shape> {
