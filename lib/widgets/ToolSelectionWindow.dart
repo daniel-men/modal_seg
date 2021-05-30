@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_seg/widgets/DrawingToolMenuEntry.dart';
 
 // ignore: must_be_immutable
 class ToolSelectionWindow extends StatefulWidget {
@@ -59,8 +60,9 @@ class ToolSelectionWindowState extends State<ToolSelectionWindow> {
               ),
               body: TabBarView(
                 children: [  
-                  Container(
-                      child: Column(
+                  DrawingToolMenuEntry(
+                    strokeWidth: widget.strokeWidth!,
+                    onStrokeWidthChanged: widget.onStrokeWidthChanged,
                     children: [
                       Card(
                         child: CheckboxListTile(
@@ -83,26 +85,21 @@ class ToolSelectionWindowState extends State<ToolSelectionWindow> {
                               });
                               widget.onStraightLineChanged(value!);
                             }),
-                      ),
-                      Card(
-                          child: Column(children: [
-                        Text("Stroke width: ${widget.strokeWidth!.round()}.0"),
-                        Slider(
-                            min: 1.0,
-                            max: 25.0,
-                            value: widget.strokeWidth!,
-                            onChanged: (value) {
-                              setState(() {
-                                widget.strokeWidth = value;
-                              });
-                              widget.onStrokeWidthChanged(value);
-                            })
-                      ]))
+                      )                      
                     ],
-                  )),
-                  Container(),                
-                  Container(),
-                  Container()
+                  ),
+                  DrawingToolMenuEntry(
+                    strokeWidth: widget.strokeWidth!,
+                    onStrokeWidthChanged: widget.onStrokeWidthChanged,
+                    children: []),                
+                  DrawingToolMenuEntry(
+                    strokeWidth: widget.strokeWidth!,
+                    onStrokeWidthChanged: widget.onStrokeWidthChanged,
+                    children: []),
+                  DrawingToolMenuEntry(
+                    strokeWidth: widget.strokeWidth!,
+                    onStrokeWidthChanged: widget.onStrokeWidthChanged,
+                    children: []),
                 ],
               ),
             ));
