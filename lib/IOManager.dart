@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' as io;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -42,7 +42,7 @@ class IOManager {
     if (_imagesAsBytes.isNotEmpty) {
       imageBytes = _imagesAsBytes[_selectedFiles.indexOf(filename)];
     } else {
-      imageBytes = await File(filename).readAsBytes();
+      imageBytes = await io.File(filename).readAsBytes();
     }
 
     ui.Codec codec = await ui.instantiateImageCodec(imageBytes);
