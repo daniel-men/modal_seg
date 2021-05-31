@@ -75,7 +75,9 @@ class Line extends Shape {
         givenTimestamp: timestamp,
         onDelete: onDelete,
         imageName: imageName,
-        index: index));
+        index: index)
+        ..strokeWidth = strokeWidth
+        );
   }
 
   @override
