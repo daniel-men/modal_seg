@@ -1,13 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:modal_seg/ShapeManager.dart';
+import 'package:modal_seg/widgets/ClassCreationWidget.dart';
 
 class ClassSelectionSidebar extends StatefulWidget {
   final ShapeManager shapeManager;
 
-  const ClassSelectionSidebar({Key? key, required this.shapeManager})
+  const ClassSelectionSidebar(
+      {Key? key,
+      required this.shapeManager})
       : super(key: key);
 
   @override
@@ -15,6 +17,7 @@ class ClassSelectionSidebar extends StatefulWidget {
 }
 
 class ClassSelectionSidebarState extends State<ClassSelectionSidebar> {
+
   @override
   Widget build(BuildContext context) {
     Widget child;
@@ -49,12 +52,14 @@ class ClassSelectionSidebarState extends State<ClassSelectionSidebar> {
   List<Widget> createClassTiles() {
     return widget.shapeManager.classes.entries
         .map((e) => Card(
-            color: e.key == widget.shapeManager.activeClass ? Colors.green : Colors.white,
+            color: e.key == widget.shapeManager.activeClass
+                ? Colors.green
+                : Colors.white,
             child: ListTile(
               onTap: () {
                 setState(() {
                   widget.shapeManager.setActiveClass(e.key);
-                });                
+                });
               },
               title: Text(e.key),
               leading: GestureDetector(
@@ -87,26 +92,40 @@ class ClassSelectionSidebarState extends State<ClassSelectionSidebar> {
                         });
                     if (shouldDelete) {
                       setState(() {
-                      widget.shapeManager.removeClass(e.key);
-                    });
+                        widget.shapeManager.removeClass(e.key);
+                      });
                     }
-                    
                   },
                   child: Icon(Icons.delete)),
             )))
         .toList();
   }
 
+  Future<void> showColorPickerDialog([String? className, Color? color]) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: ClassCreationWidget(
+                shapeManager: widget.shapeManager,
+                className: className,
+                color: color),
+          );
+        });
+  }
+
+  /*
   showColorPickerDialog([String? className, Color? color]) {
     TextEditingController textController = TextEditingController();
     Color initialColor = Color(0xff443a49);
     String? originalClassname = className;
-    String? newClassname = className;
+    String newClassname = className != null ? className : "";
     Color? newColor = color == null ? initialColor : color;
     if (className != null && color != null) {
       textController.text = className;
       initialColor = color;
     }
+    _strokeWidth = widget.shapeManager.getStrokeWidth(newClassname)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -142,23 +161,22 @@ class ClassSelectionSidebarState extends State<ClassSelectionSidebar> {
                 ),
               ),
             ),
+           
             Card(
                 child: Center(
                     child: ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            if (originalClassname == null &&
-                                newClassname != null) {
+                            if (originalClassname == null) {
                               // new class
                               widget.shapeManager
-                                  .addClass(newClassname!, newColor!);
+                                  .addClass(newClassname, newColor!);
                             }
-                            if (originalClassname != null &&
-                                newClassname != null) {
+                            if (originalClassname != null) {
                               // class name update
                               widget.shapeManager.changeClassname(
-                                  newClassname!, originalClassname);
-                              widget.shapeManager.setClassColor(newClassname!,
+                                  newClassname, originalClassname);
+                              widget.shapeManager.setClassColor(newClassname,
                                   newColor!); // in case color changed
                             }
                           });
@@ -170,4 +188,6 @@ class ClassSelectionSidebarState extends State<ClassSelectionSidebar> {
       },
     );
   }
+  */
+
 }

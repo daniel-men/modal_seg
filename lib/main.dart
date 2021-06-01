@@ -78,7 +78,8 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Container(
                 padding: EdgeInsets.all(4.0),
                 child: ClassSelectionSidebar(       
-                    shapeManager: shapeManager)))
+                    shapeManager: shapeManager,
+                    )))
       ]),
       floatingActionButton: FABS(
         onClearPressed: () => setState(() {
@@ -109,14 +110,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _onNewShape(Shape shape) {
     setState(() {
-      shape.strokeWidth = drawingManager.strokeWidth;
+      //shape.strokeWidth = drawingManager.strokeWidth;
       shapeManager.addShape(shape);
     });
   }
 
   Future<void> changeSelectedImage(String filename) async {
     // Set new image
-
     if (shapeManager.currentImage != "") {
       if (ioManager.isFollowingImage(shapeManager.currentImage, filename) &&
           shapeManager.contains(shapeManager.currentImage)) {

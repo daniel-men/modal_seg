@@ -7,7 +7,8 @@ class ShapeManager {
   static final ShapeManager _shapeManager = ShapeManager._internal();
   Map<String, List<Shape>> _fileToShapeMap = {};
   String _currentlyOpenedImage = "";
-  Map<String, Color> _classes ={};
+  Map<String, Color> _classes = {};
+  Map<String, double> _strokeWidths = {"": 1.0};
   String _activeClass = "";
   late num _originalHeight;
   late num _originalWidth;
@@ -25,6 +26,10 @@ class ShapeManager {
 
   Color getClassColor(String classname) => classname == "" ? Colors.blue : _classes[classname]!;
 
+  double getStrokeWidth(String classname) => _strokeWidths.containsKey(classname) ? _strokeWidths[classname]! : 1.0;
+    double getCurrentStrokeWidth() => _strokeWidths[_activeClass]!;
+  void setClassStrokeWidth(double strokeWidth, String classname) => _strokeWidths[classname] = strokeWidth;
+
   factory ShapeManager({num originalHeight = 1000, num originalWidth = 1000, num scaledHeight = 256, num scaledWidth = 256}) {
     _shapeManager._originalHeight = originalHeight;
     _shapeManager._originalWidth = originalWidth;
@@ -35,7 +40,12 @@ class ShapeManager {
 
   ShapeManager._internal();
 
-  void removeClass(String className) => this._classes.remove(className);
+  void removeClass(String className) {
+    if (this._activeClass == className) {
+      this._activeClass = "";
+    }
+    this._classes.remove(className);
+  } 
 
   void addClass(String newClass, Color color) {
     this._classes[newClass] = color;
@@ -45,6 +55,11 @@ class ShapeManager {
   void changeClassname(String newClassname, String oldClassname) {
     _classes[newClassname] = _classes[oldClassname]!;
     _classes.remove(oldClassname);
+    _strokeWidths[newClassname] = _strokeWidths[oldClassname]!;
+    _strokeWidths.remove(oldClassname);
+    if (this._activeClass == oldClassname) {
+        this._activeClass = newClassname;
+    }
   }
 
   void setClassColor(String className, Color color) => _classes[className] = color;
@@ -54,6 +69,7 @@ class ShapeManager {
   void setOffset(Offset offset) => _offset = offset;
 
   void addShape(Shape shape) {
+    shape.strokeWidth = getStrokeWidth(shape.className);
     if (_fileToShapeMap.containsKey(_currentlyOpenedImage)) {
       List<Shape> shapes = _fileToShapeMap[_currentlyOpenedImage]!;
       bool found = false;
@@ -147,6 +163,8 @@ class ShapeManager {
 
   void propagateShapes(String source, String target) =>
     _fileToShapeMap[target] = _fileToShapeMap[_currentlyOpenedImage]!.map((shape) => shape.copy()).toList();
+
+
 
  
 

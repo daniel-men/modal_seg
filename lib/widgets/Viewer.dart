@@ -129,7 +129,18 @@ class ViewerState extends State<Viewer> {
   }
 
   Widget windowsViewer(BuildContext context) {
-    return custom.CustomInteractiveViewer(
+    return GestureDetector(
+      onTapUp: (TapUpDetails details) {
+        if (widget.drawingManager.drawingEnabled) {
+          Offset point = details.localPosition;
+          setState(() {
+            widget.drawingPoints = List.from(widget.drawingPoints)
+                ..add(point);
+          });
+          convertPointsToShape();
+        }
+      },
+      child: custom.CustomInteractiveViewer(
         drawingEnabled: widget.drawingManager.drawingEnabled,
         panEnabled: widget.drawingManager.panEnabled,
         scaleEnabled: widget.drawingManager.zoomEnabled,
@@ -188,7 +199,7 @@ class ViewerState extends State<Viewer> {
                             widget.drawingPoints,
                             widget.drawingManager.drawingMode,
                             widget.selectedImage,
-                            widget.drawingManager.strokeWidth,
+                            widget.shapeManager.getCurrentStrokeWidth(),
                             widget.shapeManager.getActiveColor(),
                             offsetCallback)
                       ))
@@ -204,7 +215,7 @@ class ViewerState extends State<Viewer> {
                     //children: shapes
                     children: widget.shapeManager.getCurrentShapes(),
                   )))
-        ]));
+        ])));
   }
 
   Widget iOsViewer() {
