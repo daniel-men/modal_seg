@@ -127,17 +127,7 @@ class SegmentationAppBarState extends State<SegmentationAppBar> {
           return AlertDialog(
             title: Text("Tool Menu"),
             content: ToolSelectionWindow(
-                closeShape: widget.drawingManager.closeShape,
-                onShapeClosed: (value) =>
-                    widget.drawingManager.closeShape = value,
-                strokeWidth: widget.drawingManager.strokeWidth,
-                onStrokeWidthChanged: (value) =>
-                    widget.drawingManager.strokeWidth = value,
-                straightLine: widget.drawingManager.straightLine,
-                onStraightLineChanged: (value) =>
-                    widget.drawingManager.straightLine = value,
-                onDrawingModeChanged: (value) =>
-                    widget.drawingManager.drawingMode = value),
+                drawingManager: widget.drawingManager),
           );
         });
   }
