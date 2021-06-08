@@ -32,9 +32,12 @@ class ToolSelectionWindowState extends State<ToolSelectionWindow> {
         widget.onDrawingModeChanged("Line");
         break;
       case 1:
-        widget.onDrawingModeChanged("Circle");
+        widget.onDrawingModeChanged("Polyline");
         break;
       case 2:
+        widget.onDrawingModeChanged("Polyline");
+        break;
+      case 3:
         widget.onDrawingModeChanged("Rect");
         break;
       default:
@@ -46,6 +49,7 @@ class ToolSelectionWindowState extends State<ToolSelectionWindow> {
     return    
         DefaultTabController(
             length: 4,
+            initialIndex: 0, //TODO
             child: Scaffold(
               appBar: TabBar(
                 onTap: tabChanged,

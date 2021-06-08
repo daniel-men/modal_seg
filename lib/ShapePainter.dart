@@ -58,6 +58,14 @@ class ShapePainter extends CustomPainter {
           canvas.drawLine(points[i], points[i + 1], paint);
         }        
         break;
+      case "Polyline":
+        Path path = Path();
+        path.moveTo(points.first.dx, points.first.dy);
+        for (Offset point in points) {
+          path.lineTo(point.dx, point.dy);
+        }
+        canvas.drawPath(path, paint);
+      break;
       case "Rect":
         double radius = sqrt(
               pow(points.last.dx - points.first.dx, 2) +

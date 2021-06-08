@@ -8,6 +8,7 @@ import 'package:modal_seg/ShapeManager.dart';
 import 'package:modal_seg/ShapePainter.dart';
 import 'package:modal_seg/shapes/Circle.dart';
 import 'package:modal_seg/shapes/Line.dart';
+import 'package:modal_seg/shapes/PolyLine.dart';
 import 'package:modal_seg/shapes/Rect.dart';
 import 'dart:ui' as ui;
 import 'dart:io' show Platform;
@@ -20,7 +21,7 @@ class Viewer extends StatefulWidget {
   final Function _onNewShape;
   final ShapeManager shapeManager;
   final DrawingManager drawingManager;
-  List<Offset> drawingPoints = [];
+  //List<Offset> drawingPoints = [];
   final ui.Image? selectedImage;
   //ImageProcessingProvider? imageProcessingProvider;
 
@@ -38,28 +39,30 @@ class ViewerState extends State<Viewer> {
     controller = custom.TransformationController();
     controller.addListener(() {
       updateTransformation(controller.value);
-     });
+    });
   }
 
-  void updateTransformation(Matrix4 updateMarix) {
-
-  }
+  void updateTransformation(Matrix4 updateMarix) {}
 
   void convertPointsToShape() {
-    if (widget.drawingPoints.isEmpty) {
+    //if (widget.drawingPoints.isEmpty) {
+    if (widget.drawingManager.drawingPoints.isEmpty) {
       return;
     }
-    
+
     String activeClass = widget.shapeManager.activeClass;
     switch (widget.drawingManager.drawingMode) {
       case "Circle":
         double radius = sqrt(pow(
-                widget.drawingPoints.last.dx - widget.drawingPoints.first.dx,
+                widget.drawingManager.drawingPoints.last.dx -
+                    widget.drawingManager.drawingPoints.first.dx,
                 2) +
-            pow(widget.drawingPoints.last.dy - widget.drawingPoints.first.dy,
+            pow(
+                widget.drawingManager.drawingPoints.last.dy -
+                    widget.drawingManager.drawingPoints.first.dy,
                 2));
         widget._onNewShape(Circle(
-            initialPoint: widget.drawingPoints.first,
+            initialPoint: widget.drawingManager.drawingPoints.first,
             radius: radius,
             className: activeClass,
             color: widget.shapeManager.getClassColor(activeClass),
@@ -71,12 +74,13 @@ class ViewerState extends State<Viewer> {
         break;
       case "Line":
         if (widget.drawingManager.closeShape) {
-          widget.drawingPoints = Line.prunePoints(widget.drawingPoints);
+          widget.drawingManager.drawingPoints =
+              Line.prunePoints(widget.drawingManager.drawingPoints);
         }
         widget._onNewShape(Line(
             className: activeClass,
             color: widget.shapeManager.getClassColor(activeClass),
-            points: List.from(widget.drawingPoints),
+            points: List.from(widget.drawingManager.drawingPoints),
             onMoved: widget._onNewShape,
             closePath: widget.drawingManager.closeShape,
             imageName: widget.shapeManager.currentImage,
@@ -87,12 +91,17 @@ class ViewerState extends State<Viewer> {
         break;
       case "Rect":
         double radius = sqrt(pow(
-                widget.drawingPoints.last.dx - widget.drawingPoints.first.dx,
+                widget.drawingManager.drawingPoints.last.dx -
+                    widget.drawingManager.drawingPoints.first.dx,
                 2) +
-            pow(widget.drawingPoints.last.dy - widget.drawingPoints.first.dy,
+            pow(
+                widget.drawingManager.drawingPoints.last.dy -
+                    widget.drawingManager.drawingPoints.first.dy,
                 2));
         widget._onNewShape(Rectangle(
-            Rect.fromCircle(center: widget.drawingPoints.first, radius: radius),
+            Rect.fromCircle(
+                center: widget.drawingManager.drawingPoints.first,
+                radius: radius),
             className: activeClass,
             color: widget.shapeManager.getClassColor(activeClass),
             imageName: widget.shapeManager.currentImage,
@@ -100,6 +109,19 @@ class ViewerState extends State<Viewer> {
             onDelete: (value) => setState(() {
                   widget.shapeManager.deleteShape(value);
                 })));
+        break;
+      case "Polyline":
+        PolyLine shape = PolyLine(
+            points: List.from(widget.drawingManager.drawingPoints),
+            className: activeClass,
+            onMoved: widget._onNewShape,
+            color: widget.shapeManager.getClassColor(activeClass),
+            imageName: widget.shapeManager.currentImage,
+            index: widget.shapeManager.getNextIndex(),
+            onDelete: (value) => setState(() {
+                  widget.shapeManager.deleteShape(value);
+                }));
+        widget._onNewShape(shape);
         break;
       default:
     }
@@ -119,8 +141,15 @@ class ViewerState extends State<Viewer> {
     return Expanded(
         flex: 3,
         child: MouseRegion(
-            onHover: widget._updateCursorPosition as void Function(
-                PointerHoverEvent)?,
+            onHover: (PointerHoverEvent event) {
+              widget._updateCursorPosition(event);
+              if (widget.drawingManager.isDrawingModePolyline &&
+                  widget.drawingManager.polylineActive) {
+                setState(() {
+                  widget.drawingManager.tempDrawingPoint = event.localPosition;
+                });
+              }
+            },
             child: viewer));
   }
 
@@ -130,51 +159,72 @@ class ViewerState extends State<Viewer> {
 
   Widget windowsViewer(BuildContext context) {
     return GestureDetector(
-      onTapUp: (TapUpDetails details) {
-        if (widget.drawingManager.drawingEnabled) {
-          Offset point = details.localPosition;
-          setState(() {
-            widget.drawingPoints = List.from(widget.drawingPoints)
-                ..add(point);
-          });
-          convertPointsToShape();
-        }
-      },
-      child: custom.CustomInteractiveViewer(
-        drawingEnabled: widget.drawingManager.drawingEnabled,
-        panEnabled: widget.drawingManager.panEnabled,
-        scaleEnabled: widget.drawingManager.zoomEnabled,
-        transformationController: controller,
-        minScale: 0.5,
-        maxScale: 5.0,
-        //constrained: false,
-        boundaryMargin: const EdgeInsets.all(15.0),
-        onInteractionUpdate: (ScaleUpdateDetails details) {
-          if (widget.drawingManager.drawingEnabled) {
-            setState(() {
-              Offset point = details.localFocalPoint;
-              widget.drawingPoints = List.from(widget.drawingPoints)
-                ..add(point);
-            });
-          }
-        },
-        onInteractionEnd: (ScaleEndDetails details) {
-          
-          if (widget.drawingManager.drawingEnabled) {
+        onDoubleTap: () {
+          if (widget.drawingManager.isDrawingModePolyline &&
+              widget.drawingManager.polylineActive) {
+            widget.drawingManager.polylineActive = false;
+            //widget.drawingManager.removeLastDrawingPoint();
+            widget.drawingManager.setTempDrawingPointNull();
             convertPointsToShape();
-            setState(() {
-              widget.drawingPoints.clear();
-            });
+            widget.drawingManager.clearDrawingPoints();
           }
         },
-        child: Stack(children: [
-          /*
+        onTapUp: (TapUpDetails details) {
+          if (widget.drawingManager.drawingEnabled &&
+              widget.drawingManager.isDrawingModePolyline) {
+            if (!widget.drawingManager.polylineActive) {
+              widget.drawingManager.polylineActive = true;
+            }
+
+            Offset point = details.localPosition;
+
+            setState(() {
+              //widget.drawingManager.drawingPoints = List.from(widget.drawingManager.drawingPoints)..add(point);
+              widget.drawingManager.addDrawingPoint(point);
+            });
+            //convertPointsToShape();
+          }
+        },
+        child: custom.CustomInteractiveViewer(
+            drawingEnabled: widget.drawingManager.drawingEnabled,
+            panEnabled: widget.drawingManager.panEnabled,
+            scaleEnabled: widget.drawingManager.zoomEnabled,
+            transformationController: controller,
+            minScale: 0.5,
+            maxScale: 5.0,
+            //constrained: false,
+            boundaryMargin: const EdgeInsets.all(15.0),
+            onInteractionUpdate: (ScaleUpdateDetails details) {
+              if (widget.drawingManager.drawingEnabled &&
+                  !widget.drawingManager.isDrawingModePolyline) {
+                setState(() {
+                  Offset point = details.localFocalPoint;
+                  widget.drawingManager.addDrawingPoint(point);
+                  /*
+                  widget.drawingManager.drawingPoints =
+                      List.from(widget.drawingManager.drawingPoints)
+                        ..add(point);
+                        */
+                });
+              }
+            },
+            onInteractionEnd: (ScaleEndDetails details) {
+              if (widget.drawingManager.drawingEnabled &&
+                  !widget.drawingManager.isDrawingModePolyline) {
+                convertPointsToShape();
+                setState(() {
+                  widget.drawingManager.drawingPoints.clear();
+                });
+              }
+            },
+            child: Stack(children: [
+              /*
           GestureDetector(
               onPanUpdate: (DragUpdateDetails details) {
                 if (widget.drawingManager.drawingEnabled) {
                   setState(() {
                     Offset point = details.localPosition;
-                    widget.drawingPoints = List.from(widget.drawingPoints)
+                    widget.drawingManager.drawingPoints = List.from(widget.drawingManager.drawingPoints)
                       ..add(point);
                   });
                 }
@@ -183,11 +233,11 @@ class ViewerState extends State<Viewer> {
                 if (widget.drawingManager.drawingEnabled) {
                   convertPointsToShape();
                   setState(() {
-                    widget.drawingPoints.clear();
+                    widget.drawingManager.drawingPoints.clear();
                   });
                 }
               },*/
-              //child: 
+              //child:
               FractionallySizedBox(
                   widthFactor: 1.0,
                   heightFactor: 1.0,
@@ -195,27 +245,26 @@ class ViewerState extends State<Viewer> {
                       padding: EdgeInsets.all(4.0),
                       color: Color.fromARGB(0, 0, 0, 0),
                       child: CustomPaint(
-                        painter: ShapePainter(
-                            widget.drawingPoints,
-                            widget.drawingManager.drawingMode,
-                            widget.selectedImage,
-                            widget.shapeManager.getCurrentStrokeWidth(),
-                            widget.shapeManager.getActiveColor(),
-                            offsetCallback)
-                      ))
-                      //)
-                      ),
-          FractionallySizedBox(
-              widthFactor: 1.0,
-              heightFactor: 1.0,
-              child: Container(
-                  padding: EdgeInsets.all(4.0),
-                  alignment: Alignment.topLeft,
-                  child: Stack(
-                    //children: shapes
-                    children: widget.shapeManager.getCurrentShapes(),
-                  )))
-        ])));
+                          painter: ShapePainter(
+                              widget.drawingManager.drawingPoints,
+                              widget.drawingManager.drawingMode,
+                              widget.selectedImage,
+                              widget.shapeManager.getCurrentStrokeWidth(),
+                              widget.shapeManager.getActiveColor(),
+                              offsetCallback)))
+                  //)
+                  ),
+              FractionallySizedBox(
+                  widthFactor: 1.0,
+                  heightFactor: 1.0,
+                  child: Container(
+                      padding: EdgeInsets.all(4.0),
+                      alignment: Alignment.topLeft,
+                      child: Stack(
+                        //children: shapes
+                        children: widget.shapeManager.getCurrentShapes(),
+                      )))
+            ])));
   }
 
   Widget iOsViewer() {
@@ -229,17 +278,17 @@ class ViewerState extends State<Viewer> {
           if (widget.drawingManager.drawingEnabled) {
             setState(() {
               Offset point = details.localFocalPoint;
-              widget.drawingPoints = List.from(widget.drawingPoints)
-                ..add(point);
+              widget.drawingManager.drawingPoints =
+                  List.from(widget.drawingManager.drawingPoints)..add(point);
             });
           }
         },
         onInteractionEnd: (ScaleEndDetails details) {
           if (widget.drawingManager.drawingEnabled &&
-              widget.drawingPoints.isNotEmpty) {
+              widget.drawingManager.drawingPoints.isNotEmpty) {
             convertPointsToShape();
             setState(() {
-              widget.drawingPoints.clear();
+              widget.drawingManager.drawingPoints.clear();
             });
           }
         },
@@ -254,7 +303,7 @@ class ViewerState extends State<Viewer> {
                     color: Color.fromARGB(0, 0, 0, 0),
                     child: CustomPaint(
                       painter: ShapePainter(
-                          widget.drawingPoints,
+                          widget.drawingManager.drawingPoints,
                           widget.drawingManager.drawingMode,
                           widget.selectedImage,
                           widget.drawingManager.strokeWidth,

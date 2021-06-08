@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:modal_seg/shapes/Shape.dart';
 import 'package:tuple/tuple.dart';
-import 'dart:math';
 
 // ignore: must_be_immutable
 class Line extends Shape {
@@ -44,19 +43,17 @@ class Line extends Shape {
   paint(Canvas canvas, Paint paint) {
     paint.strokeWidth = strokeWidth;
     Path path = Path();
-
+    Offset firstPoint = points!.first;
     for (Offset point in points!) {
-      Offset pointTranslated = point - points!.first;
+      Offset pointTranslated = point - firstPoint;
       path.lineTo(pointTranslated.dx, pointTranslated.dy);
     }
-
 
     if (this.closePath != null && this.closePath!) {
       path.close();
     }
 
     canvas.drawPath(path, paint);
-
   }
 
   @override
@@ -76,29 +73,24 @@ class Line extends Shape {
         onDelete: onDelete,
         imageName: imageName,
         index: index)
-        ..strokeWidth = strokeWidth
-        );
+      ..strokeWidth = strokeWidth);
   }
 
   @override
   State<StatefulWidget> createState() => ShapeState();
 
-  @override
-  Set<Tuple2<int, int>> getPointsInShape(num? originalHeight,
+  List<Offset> getClosedPoints(List<Offset> points, num? originalHeight,
       num? originalWidth, num scaledHeight, num scaledWidth,
       {Offset offset = const Offset(0, 0)}) {
     List<Offset> insidePoints = [];
-
-    if (closePath != null && closePath!) {
-      Path path = Path();
-
-      for (Offset point in points!) {
-        Offset pointTranslated = point - points!.first; // TODO check offset
+    Path path = Path();
+    for (Offset point in points) {
+        Offset pointTranslated = point - points.first; // TODO check offset
         path.lineTo(pointTranslated.dx, pointTranslated.dy);
       }
 
       Rect boundingBox = path.getBounds();
-      boundingBox = boundingBox.translate(points!.first.dx, points!.first.dy);
+      boundingBox = boundingBox.translate(points.first.dx, points.first.dy);
 
       int i = 0;
       int j = 0;
@@ -117,18 +109,39 @@ class Line extends Shape {
         }
         i += 1;
       }
-    } else {
-      insidePoints = points!.map((p) => roundOffset(p - offset)).toList();
+    return insidePoints;
+  }
+
+  List<Offset> getPoints(List<Offset> points, {Offset offset = const Offset(0, 0)}) {
+    List<Offset> insidePoints = points.map((p) => roundOffset(p - offset)).toList();
       for (var i = 0; i < strokeWidth / 2; i++) {
         insidePoints = applyThickness(insidePoints);
       }
-    }
+    return insidePoints;
+  }
 
+  Set<Tuple2<int, int>> pointsToTupleList(List<Offset> points) {
     Set<Tuple2<int, int>> coordinates = Set();
-
-    for (Offset offset in insidePoints) {
+    for (Offset offset in points) {
       coordinates.add(Tuple2<int, int>(offset.dx.toInt(), offset.dy.toInt()));
     }
+    return coordinates;
+  }
+
+  @override
+  Set<Tuple2<int, int>> getPointsInShape(num? originalHeight,
+      num? originalWidth, num scaledHeight, num scaledWidth,
+      {Offset offset = const Offset(0, 0)}) {
+    List<Offset> insidePoints = [];
+
+    if (closePath != null && closePath!) {
+      insidePoints = getClosedPoints(points!, originalHeight, originalWidth, scaledHeight, scaledWidth);
+    } else {
+      insidePoints = getPoints(points!, offset: offset);
+    }
+
+    Set<Tuple2<int, int>> coordinates = pointsToTupleList(insidePoints);
+    
 
     return coordinates;
   }
@@ -162,8 +175,6 @@ class Line extends Shape {
 
     return wn;
   }
-
-  
 
   static List<Offset> prunePoints(List<Offset> points) {
     double minDist = double.infinity;

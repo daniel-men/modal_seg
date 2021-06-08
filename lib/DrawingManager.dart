@@ -1,4 +1,6 @@
-  enum InteractionMode {
+  import 'dart:ui';
+
+enum InteractionMode {
     PAN,
     ZOOM,
     DRAW
@@ -14,14 +16,19 @@ class DrawingManager {
   bool _zoomEnabled = false;
   bool _drawingEnabled = false;
 
+  bool _polylineActive = false;
+
   bool? _closeShape = false;
   double? _strokeWidth = 2.0;
   bool? _straightLine = false;
   String _drawingMode = "Line";
 
   late Function? update;
+  List<Offset> _drawingPoints = [];
 
   InteractionMode _currentMode = InteractionMode.PAN;
+
+  Offset? _tempDrawingPoint;
 
   set closeShape(bool? value) => this._closeShape = value;
   bool get closeShape => this._closeShape == null ? false : this._closeShape!;
@@ -39,12 +46,38 @@ class DrawingManager {
   bool get zoomEnabled => this._zoomEnabled;
   bool get drawingEnabled => this._drawingEnabled;
 
+  bool get polylineActive => this._polylineActive;
+  set polylineActive(bool value) => this._polylineActive = value;
+  bool get isDrawingModePolyline => this.drawingMode == "Polyline";
+
+  List<Offset> get drawingPoints => this._getDrawingPoints();
+
+  List<Offset> _getDrawingPoints() {
+     if (this._tempDrawingPoint != null) {
+       return List.from(this._drawingPoints)..add(this._tempDrawingPoint!);
+     } else {
+       return this._drawingPoints;
+     } 
+  }
+
+  void removeLastDrawingPoint() => this._drawingPoints.removeLast();
+  void clearDrawingPoints() => this._drawingPoints.clear();
+  void setTempDrawingPointNull() => this._tempDrawingPoint = null;
+  
+  set drawingPoints(List<Offset> points) => this._drawingPoints = points;
+
+  set tempDrawingPoint(Offset point) => this._tempDrawingPoint = point;
 
   factory DrawingManager({Function? update}) {
     return _drawingManager;
   }
 
   DrawingManager._internal();
+
+  void addDrawingPoint(Offset point) {
+    this._drawingPoints = List.from(this._drawingPoints)..add(point);
+  }
+
 
   void enablePanMode() {
     _panEnabled = true;
@@ -71,5 +104,6 @@ class DrawingManager {
   }
 
   int currentInteractionMode() => _currentMode.index;
+
 
 }
