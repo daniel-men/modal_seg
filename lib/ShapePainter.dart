@@ -62,6 +62,7 @@ class ShapePainter extends CustomPainter {
         Path path = Path();
         path.moveTo(points.first.dx, points.first.dy);
         for (Offset point in points) {
+          canvas.drawCircle(point, strokeWidth * 2, paint);
           path.lineTo(point.dx, point.dy);
         }
         canvas.drawPath(path, paint);
