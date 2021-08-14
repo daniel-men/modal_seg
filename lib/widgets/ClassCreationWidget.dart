@@ -93,6 +93,7 @@ class  ClassCreationWidgetState extends State<ClassCreationWidget> {
                             
                           });
                           Navigator.pop(context);
+                          widget.shapeManager.update!();
                         },
                         child: Text("Save"))))
           ]));

@@ -48,6 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
     ioManager.exportCallback = exportShapesToServer;
     ioManager.onNewDataCallback = newDataCallback;
     drawingManager.update = redraw;
+    shapeManager.update = redraw;
   }
 
   ShapeManager shapeManager = ShapeManager();

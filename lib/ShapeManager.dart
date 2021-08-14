@@ -14,24 +14,25 @@ class ShapeManager {
   late num _originalWidth;
   late num _scaledHeight;
   late num _scaledWidth;
+  late Function? update;
   Offset _offset = Offset(0, 0);
 
   Map<String, Color> get classes => this._classes;
 
   String get currentImage => this._currentlyOpenedImage;
-  
+
   set currentImage(String imageName) => this._currentlyOpenedImage = imageName;
 
   void setActiveClass(String key) => _activeClass = key;
-  
+
   String get activeClass => _classes.containsKey(_activeClass) ? _activeClass : "";
 
   Color getClassColor(String classname) => classname == "" ? Colors.blue : _classes[classname]!;
 
   double getStrokeWidth(String classname) => _strokeWidths.containsKey(classname) ? _strokeWidths[classname]! : 1.0;
-  
+
   double getCurrentStrokeWidth() => _strokeWidths[_activeClass]!;
-  
+
   void setClassStrokeWidth(double strokeWidth, String classname) => _strokeWidths[classname] = strokeWidth;
 
   factory ShapeManager({num originalHeight = 1000, num originalWidth = 1000, num scaledHeight = 256, num scaledWidth = 256}) {
